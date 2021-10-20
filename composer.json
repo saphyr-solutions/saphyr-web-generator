@@ -1,7 +1,7 @@
 {
     "name": "saphyr-solutions/saphyr-web-generator",
     "description": "Build your website with saphyr-solutions.ch",
-    "version": "1.0.0",
+    "type": "library",
     "authors": [
         {
             "name": "Saphyr Solutions",
@@ -16,5 +16,6 @@
     "require": {
         "twig/twig": "3.0",
         "scssphp/scssphp": "^1.8.1"
-    }
+    },
+    "license": "MIT"
 }
