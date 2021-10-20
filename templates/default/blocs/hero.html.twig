@@ -1,0 +1,32 @@
+{% import "/macros/tool.html.twig" as macros %}
+
+<div class="py-10 pt-md-14" style="{{ macros.getStyles(current_bloc, "")|trim }}">
+    <div class="row align-items-center">
+        <div class="col-12 col-md-5 col-lg-6 order-md-2">
+
+            <!-- Image -->
+            <img src="{{ asset(current_bloc.image) }}" class="img-fluid mw-md-150 mw-lg-130 mb-6 mb-md-0 aos-init aos-animate" alt="{{ current_bloc.title }}" data-aos="fade-up" data-aos-delay="100">
+
+        </div>
+        <div class="col-12 col-md-7 col-lg-6 order-md-1 aos-init aos-animate" data-aos="fade-up">
+
+            <!-- Heading -->
+            {% if current_bloc.title %}
+                <h1 class="display-3 text-center text-md-start" style="{{ macros.getStyles(current_bloc, "title_")|snl2br|trim }}">{{ current_bloc.title|raw }}</h1>
+            {% endif %}
+
+            <!-- Text -->
+            {% if current_bloc.text %}
+                <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|snl2br|trim }}">{{ current_bloc.text|raw }}</p>
+            {% endif %}
+
+            <!-- Buttons -->
+            {% if current_bloc.button_text %}
+                <div class="text-center text-md-start">
+                    <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ macros.getStyles(current_bloc, "button_")|trim }}" class="btn btn-primary shadow lift me-1">{{ current_bloc.button_text }}</a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>

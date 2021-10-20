@@ -1,0 +1,23 @@
+{% import "/macros/tool.html.twig" as macros %}
+
+<div class="{{ current_bloc.classes|join(" ") }}" data-aos="fade-up" data-aos-delay="200">
+
+    {% if current_bloc.image %}
+        {% if current_bloc.image_link %}<a href="{{ current_bloc.image_link }}">{% endif %}
+        <img class="img-fluid" src="{{ asset(current_bloc.image) }}" alt="{{ current_bloc.image.client_name }}">
+        {% if current_bloc.image_link %}</a>{% endif %}
+    {% endif %}
+
+    {% if current_bloc.title %}
+        <h2 style="{{ macros.getStyles(current_bloc, "title_")|trim }}">{{ current_bloc.title|snl2br|raw }}</h2>
+    {% endif %}
+
+    {% if current_bloc.text %}
+        <p style="{{ macros.getStyles(current_bloc, "text_")|snl2br|trim }}" class="text-muted mt-5">{{ current_bloc.text|snl2br|raw }}</p>
+    {% endif %}
+
+    {% if current_bloc.button_text %}
+        <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ macros.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }}">{{ current_bloc.button_text }}</a>
+    {% endif %}
+
+</div>

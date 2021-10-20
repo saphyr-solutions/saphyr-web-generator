@@ -1,0 +1,20 @@
+{
+    "name": "saphyr-solutions/saphyr-web-generator",
+    "description": "Build your website with saphyr-solutions.ch",
+    "version": "dev-master",
+    "authors": [
+        {
+            "name": "Saphyr Solutions",
+            "email": "support@saphyr-solutions.ch"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SaphyrWebGenerator\\": "src"
+        }
+    },
+    "require": {
+        "twig/twig": "3.0",
+        "scssphp/scssphp": "^1.8.1"
+    }
+}
