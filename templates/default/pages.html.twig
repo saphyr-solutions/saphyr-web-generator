@@ -1,0 +1,13 @@
+{% extends "_html.html.twig" %}
+
+{% block content %}
+    {% include 'includes/nav.html.twig' %}
+
+    <section id="main">
+        {% for section in current_page.sections %}
+            {{ include('sections/' ~ section.columns ~ '.html.twig', {current_section: section}, with_context = true) }}
+        {% endfor %}
+    </section>
+
+    {% include 'includes/footer.html.twig' %}
+{% endblock %}

@@ -1,0 +1,28 @@
+<nav class="navbar fixed-top navbar-light navbar-expand-lg bg-white">
+    <div class="container">
+        {% if current_page.logo %}
+            <a href="/" class="navbar-brand"><img src="{{ asset(current_page.logo) }}" alt="{{ web.title }}" class="navbar-brand-img"></a>
+        {% elseif web.logo %}
+            <a href="/" class="navbar-brand"><img src="{{ asset(web.logo) }}" alt="{{ web.title }}" class="navbar-brand-img"></a>
+        {% elseif web.title %}
+            <h1 class="navbar-brand"><a href="/">{{ web.title }}</a></h1>
+        {% endif %}
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fe fe-x"></i>
+            </button>
+            <ul class="navbar-nav ms-auto">
+                {% for page in menu %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if page.url == current_page.url %}active{% endif %}" href="/{{ page.url }}">{{ page.menu }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>

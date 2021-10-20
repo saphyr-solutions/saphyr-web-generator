@@ -1,0 +1,67 @@
+{% macro buildSection(current_section) %}
+    <div style="{{ _self.getStyles(current_section, "")|trim }}">
+        <div class="{{ current_section.classes|join(" ") }}">
+            <div class="row gy-5">
+
+                {% set columns = current_section.columns %}
+                {% if columns == "col-3_col-3_col-3_col-3" %}
+                    {% set columns = "col-sm-6 col-lg-3_col-sm-6 col-lg-3_col-sm-6 col-lg-3_col-md-3" %}
+                {% elseif columns == "col-4_col-4_col-4" %}
+                    {% set columns = "col-sm-6 col-lg-4_col-sm-6 col-lg-4_col-sm-6 col-lg-4" %}
+                {% else %}
+                    {% set columns = columns|replace({"col-": "col-md-"}) %}
+                {% endif %}
+
+                {% set columnsClasses = columns|split("_") %}
+                {% for key, current_bloc in current_section.blocs %}
+                    {% set newColumn = not current_bloc.same_column %}
+                    {% set closeColumn = not current_section.blocs[key+1].same_column %}
+                    {% set keyToSearch = key % columnsClasses|length %}
+                    {% set columnClass = columnsClasses[keyToSearch] %}
+
+                    {% if newColumn %}<div class="{{ columnClass }}">{% endif %}
+                    {{ include('blocs/' ~ current_bloc.type ~ '.html.twig', {current_bloc: current_bloc}, with_context = true) }}
+                    {% if closeColumn %}</div>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro getStyles(element, prefix) %}
+    {% set styles = [] %}
+    {% if attribute(element, prefix ~ "color") %}
+        {% set styles = styles|merge(["color: " ~ attribute(element, prefix ~ "color") ~ "!important"]) %}
+    {% endif %}
+
+    {# Background #}
+    {% set backgrounds = [] %}
+    {% if attribute(element, prefix ~ "background_image") %}
+        {% if attribute(element, prefix ~ "background_color") and attribute(element, prefix ~ "background_color_alt") %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color")~" 0%, "~attribute(element, prefix ~ "background_color_alt")~" 100%)"]) %}
+        {% elseif attribute(element, prefix ~ "background_color") %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color")~" 0%, "~attribute(element, prefix ~ "background_color")~" 100%)"]) %}
+        {% elseif attribute(element, prefix ~ "background_color_alt") %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color_alt")~" 0%, "~attribute(element, prefix ~ "background_color_alt")~" 100%)"]) %}
+        {% endif %}
+        {% set backgrounds = backgrounds|merge(["url("~asset(attribute(element, prefix ~ "background_image"))~") center center no-repeat"]) %}
+    {% elseif attribute(element, prefix ~ "background_color") and attribute(element, prefix ~ "background_color_alt") %}
+        {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color")~" 0%, "~attribute(element, prefix ~ "background_color_alt")~" 100%)"]) %}
+    {% elseif attribute(element, prefix ~ "background_color") %}
+        {% set backgrounds = backgrounds|merge([attribute(element, prefix ~ "background_color")]) %}
+    {% elseif attribute(element, prefix ~ "background_color_alt") %}
+        {% set backgrounds = backgrounds|merge([attribute(element, prefix ~ "background_color_alt")]) %}
+    {% endif %}
+
+    {% if backgrounds %}
+        {% set styles = styles|merge(["background:" ~ backgrounds|join(", "), "background-repeat: no-repeat", "background-size: cover"]) %}
+    {% endif %}
+
+    {{ styles|join("; ") }}
+{% endmacro %}
+
+{% macro heading(current_bloc, level = "1") %}
+    {% if current_bloc.title %}
+        <h{{ level}} class="{{ current_bloc.classes|join(" ") }}" style="{{ _self.getStyles(current_bloc, "title_")|trim }}" data-aos="fade-up" data-aos-delay="200">{{ current_bloc.title|snl2br|raw }}</h{{ level }}>
+    {% endif %}
+{% endmacro %}

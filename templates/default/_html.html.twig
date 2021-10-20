@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>{{ current_page.seo_title ? current_page.seo_title ~ " - " : "" }}{{ web.title }}</title>
+
+    {% if current_page.seo_description %}
+        <meta name="description" content="{{ current_page.seo_description }}">
+    {% endif %}
+
+    {% if current_page.seo_og_title %}
+        <meta property="og:title" content="{{ current_page.seo_og_title }}">
+    {% endif %}
+    {% if current_page.seo_og_description %}
+        <meta property="og:description" content="{{ current_page.seo_og_description }}">
+    {% endif %}
+    {% if current_page.seo_og_type %}
+        <meta property="og:type" content="{{ current_page.seo_og_type }}">
+    {% endif %}
+    {% if current_page.seo_og_image %}
+        <meta property="og:image" content="{{ asset(current_page.seo_og_image) }}">
+    {% endif %}
+
+    {% if current_page.seo_canonical %}
+        <link rel="canonical" href="{{ current_page.seo_canonical }}">
+    {% endif %}
+
+    <!-- Favicons -->
+    {% if web.favicon %}
+        <link href="{{ asset(web.favicon) }}" rel="icon">
+    {% endif %}
+
+    <!-- Template Main CSS File -->
+    <link href="{{ asset("assets/dist/css/libs.bundle.css") }}" rel="stylesheet">
+    <link href="{{ asset("assets/dist/css/theme.bundle.css") }}" rel="stylesheet">
+
+    {% if current_page.html_header %}
+        {{ current_page.html_header|raw }}
+    {% endif %}
+</head>
+
+<body style="overflow-x: hidden;">
+{% block content %}
+{% endblock %}
+
+<!-- Template Main JS File -->
+<script src="{{ asset('assets/dist/js/vendor.bundle.js') }}"></script>
+<script src="{{ asset('assets/dist/js/theme.bundle.js') }}"></script>
+</body>
+</html>
