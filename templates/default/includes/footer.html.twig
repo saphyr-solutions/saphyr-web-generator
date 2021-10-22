@@ -7,9 +7,6 @@
                     <img src="{{ asset(web.logo) }}" alt="{{ web.title }}" class="footer-brand img-fluid mb-2">
                 {% endif %}
 
-                <!-- Text -->
-                <p class="text-gray-700 mb-2 mt-3">{{ web.title }}</p>
-
                 <!-- Social -->
                 <ul class="list-unstyled list-inline list-social mb-6 mb-md-0">
                     {% if web.twitter %}
@@ -43,11 +40,11 @@
                 </ul>
             </div>
 
-            <div class="col-3">
+            <div class="col">
                 <!-- List -->
                 <ul class="list-unstyled text-muted mb-6 mb-md-8 mb-lg-0">
                     {% for page in menu|slice(0,5) %}
-                        <li class="mb-3">
+                        <li>
                             <a href="/{{ page.url }}" class="text-reset">{{ page.menu }}</a>
                         </li>
                     {% endfor %}

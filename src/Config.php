@@ -91,9 +91,9 @@ class Config
         $this->api_user_login = $api_user_login;
         $this->api_user_secret = $api_user_secret;
         $this->api_temp_storage = $api_temp_storage;
-        $this->api_ttl = 3600;
+        $this->api_ttl = 30;
         $this->api_debug = false;
-        $this->class_root_dir = str_replace("\\", "/", realpath(__DIR__ . '/..')) . '/';
+        $this->class_root_dir = './vendor/saphyr-solutions/saphyr-web-generator/';
         $this->use_scssphp = true;
         $this->template = "default";
         $this->secured_pages_ttl = 3600;
