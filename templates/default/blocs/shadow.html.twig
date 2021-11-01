@@ -7,15 +7,19 @@
         {% if current_bloc.image_link %}</a>{% endif %}
     {% endif %}
 
+
     {% if current_bloc.title %}
-        <h3 class="mb-5" style="{{ macros.getStyles(current_bloc, "title_")|trim }}">{{ current_bloc.title|raw }}</h3>
+        {{ macros.headers(current_bloc, "3"," mb-5 ") }}
     {% endif %}
+
 
     {% if current_bloc.text %}
         <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="text-muted">{{ current_bloc.text|raw }}</p>
     {% endif %}
 
+
     {% if current_bloc.button_text %}
-        <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ macros.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }}">{{ current_bloc.button_text }}</a>
+        {{ macros.button(current_bloc) }}
     {% endif %}
+
 </div>

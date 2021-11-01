@@ -1,0 +1,31 @@
+<div class="{{ current_bloc.classes|join(" ") }} card shadow-light-lg lift lift-lg">
+
+    <!-- Image -->
+    <img class="card-img-top" src="{{ asset(current_bloc.image) }}" alt="{{ current_bloc.image.client_name }}">
+
+    <!-- Shape -->
+    <div class="position-relative">
+        <div class="shape shape-bottom shape-fluid-x text-white">
+            <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 48h2880V0h-720C1442.5 52 720 0 720 0H0v48z" fill="currentColor"></path></svg>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body">
+
+        {% if current_bloc.title %}
+            {{ macros.headers(current_bloc,2) }}
+        {% endif %}
+
+        {% if current_bloc.text %}
+            <p style="{{ macros.getStyles(current_bloc, "text_")|snl2br|trim }}" class="mb-md-7 mt-5">{{ current_bloc.text|snl2br|raw }}</p>
+        {% endif %}
+
+
+        {% if current_bloc.button_text %}
+            {{ macros.button(current_bloc) }}
+        {% endif %}
+
+    </div>
+
+</div>

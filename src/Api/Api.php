@@ -489,7 +489,7 @@ class Api
         }
 
         if ($this->private) {
-            $signature = $this->getSignature($params);
+            $signature = $this->getSignature($params,$action);
             $headers[] = 'signature: ' . $signature;
         }
 
@@ -561,7 +561,7 @@ class Api
      * @param null $params
      * @return false|string
      */
-    private function getSignature($params = null)
+    private function getSignature($params = null,$action = '')
     {
         $signContent = "";
         if ($params && is_array($params)) {
@@ -573,6 +573,8 @@ class Api
         }
 
         $signContent .= $this->token;
+        $signContent .= "+".$action;
+
         $sign = hash_hmac("sha256", $signContent, $this->private);
         return $sign;
     }

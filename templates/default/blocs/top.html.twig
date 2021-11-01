@@ -10,20 +10,20 @@
         </div>
         <div class="col-12 col-md-7 col-lg-6 order-md-1 aos-init aos-animate" data-aos="fade-up">
 
-            <!-- Heading -->
+            <!-- Headers -->
             {% if current_bloc.title %}
-                <h1 class="display-3 text-center text-md-start" style="{{ macros.getStyles(current_bloc, "title_")|snl2br|trim }}">{{ current_bloc.title|raw }}</h1>
+                {{ macros.headers(current_bloc, "1"," display-3 text-center text-md-start ") }}
             {% endif %}
 
             <!-- Text -->
             {% if current_bloc.text %}
-                <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|snl2br|trim }}">{{ current_bloc.text|raw }}</p>
+                <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|snl2br|trim }}">{{ current_bloc.text|raw|nl2br }}</p>
             {% endif %}
 
-            <!-- Buttons -->
+            <!-- Button -->
             {% if current_bloc.button_text %}
                 <div class="text-center text-md-start">
-                    <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ macros.getStyles(current_bloc, "button_")|trim }}" class="btn btn-primary shadow lift me-1">{{ current_bloc.button_text }}</a>
+                    {{ macros.button(current_bloc, " btn-primary shadow lift me-1 ") }}
                 </div>
             {% endif %}
 

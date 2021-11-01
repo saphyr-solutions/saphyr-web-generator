@@ -42,10 +42,14 @@
     <a class="card-body" href="{{ url }}">
 
         <!-- Heading -->
-        <h3>{{ title|snl2br|raw }}</h3>
+        {{ macros.headers(current_bloc,3) }}
 
         <!-- Text -->
         <p class="mb-0 text-muted">{{ text|snl2br|raw }}</p>
+
+        {% if current_bloc.button_text %}
+            {{ macros.button(current_bloc) }}
+        {% endif %}
 
     </a>
 

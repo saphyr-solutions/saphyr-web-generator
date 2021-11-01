@@ -14,19 +14,27 @@
 
             <!-- Body -->
             <div class="card-body">
-                <blockquote class="blockquote mb-0 text-center">
 
-                    <!-- Text -->
-                    <p class="mb-5 mb-md-7">
-                        “{{ current_bloc.text|snl2br|raw }}”
-                    </p>
+                {{ dump(current_bloc) }}
 
-                    <!-- Footer -->
-                    <footer class="blockquote-footer">
-                        <span class="h6 text-uppercase">{{ current_bloc.author }}</span>
-                    </footer>
 
-                </blockquote>
+                <!-- Title -->
+                {% if current_bloc.title %}
+                    {{ macros.headers(current_bloc, "3"," mb-5 ") }}
+                {% endif %}
+
+
+                <!-- Text -->
+                <p class="mb-5 mb-md-7">
+                    {{ current_bloc.text|snl2br|raw }}
+                </p>
+
+                {% if current_bloc.button_text %}
+                    <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ macros.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }}">{{ current_bloc.button_text }}</a>
+                {% endif %}
+
+
+
             </div>
         </div>
     </div>
