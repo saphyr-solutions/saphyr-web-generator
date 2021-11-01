@@ -71,10 +71,12 @@
 {% endmacro %}
 
 {% macro button(current_bloc, classes="",html="") %}
-    <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ _self.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }} {{ classes }}" {{ html }}>
-        {% if current_bloc.button_logo %}<img src="{{ asset(current_bloc.button_logo) }}" class="me-2">{% endif %}
-        {{ current_bloc.button_text }}
-    </a>
+    <div class="{{ current_bloc.button_align }}">
+        <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ _self.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }} {{ classes }}" {{ html }}>
+            {% if current_bloc.button_logo %}<img src="{{ asset(current_bloc.button_logo) }}" class="me-2">{% endif %}
+            {{ current_bloc.button_text }}
+        </a>
+    </div>
 {% endmacro %}
 
 {% macro icon(current_bloc, classes="",html="") %}
