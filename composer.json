@@ -17,5 +17,8 @@
         "twig/twig": "3.0",
         "scssphp/scssphp": "^1.8.1"
     },
-    "license": "MIT"
+    "license": "MIT",
+    "require-dev": {
+        "symfony/var-dumper": "^5.3"
+    }
 }

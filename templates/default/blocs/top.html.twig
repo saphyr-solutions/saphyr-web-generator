@@ -3,21 +3,44 @@
 <div class="py-10 pt-md-14" style="{{ macros.getStyles(current_bloc, "")|trim }}">
     <div class="row align-items-center">
         <div class="col-12 col-md-5 col-lg-6 order-md-2">
-
-            <!-- Image -->
-            <img src="{{ asset(current_bloc.image) }}" class="img-fluid mw-md-150 mw-lg-130 mb-6 mb-md-0 aos-init aos-animate" alt="{{ current_bloc.title }}" data-aos="fade-up" data-aos-delay="100">
-
+            {% if current_bloc.image %}
+                {{ macros.img(current_bloc, "img-fluid mw-md-150 mw-lg-130 mb-6 mb-md-0 aos-init aos-animate", 'data-aos="fade-up" data-aos-delay="100"') }}
+            {% endif %}
         </div>
         <div class="col-12 col-md-7 col-lg-6 order-md-1 aos-init aos-animate" data-aos="fade-up">
+            <!-- Label -->
+            {% if current_bloc.label_1_label %}
+                <div class="position-relative text-start mb-3">
+                    {% if current_bloc.label_1_label %}
+                        {{ macros.label(current_bloc, 1) }}
+                    {% endif %}
+                    {% if current_bloc.label_2_label %}
+                        {{ macros.label(current_bloc, 2) }}
+                    {% endif %}
+                    {% if current_bloc.label_3_label %}
+                        {{ macros.label(current_bloc, 3) }}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Icon -->
+            {% if current_bloc.icon_icon or current_bloc.icon_logo %}
+                <div class="mb-5">{{ macros.icon(current_bloc) }}</div>
+            {% endif %}
 
             <!-- Headers -->
             {% if current_bloc.title %}
-                {{ macros.headers(current_bloc, "1"," display-3 text-center text-md-start ") }}
+                {{ macros.header(current_bloc, "1"," display-3 text-center text-md-start ") }}
             {% endif %}
 
             <!-- Text -->
             {% if current_bloc.text %}
-                <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|snl2br|trim }}">{{ current_bloc.text|raw|nl2br }}</p>
+                <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">{{ current_bloc.text|raw|nl2br }}</p>
+            {% endif %}
+
+            <!-- Author -->
+            {% if current_bloc.author %}
+                <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.author|snl2br|raw }}</p>
             {% endif %}
 
             <!-- Button -->
@@ -26,7 +49,6 @@
                     {{ macros.button(current_bloc, " btn-primary shadow lift me-1 ") }}
                 </div>
             {% endif %}
-
         </div>
     </div>
 </div>

@@ -1,7 +1,8 @@
-<div class="card card-row shadow-light-lg {{ current_bloc.classes|join(" ") }}" data-aos="fade-up" data-aos-delay="200">
-    <div class="row gx-0">
-        <a class="col-12 col-md-6 bg-cover card-img-start" style="background-image: url({{ asset(current_bloc.image) }});" href="#">
+{% import "/macros/tool.html.twig" as macros %}
 
+<div class="card card-row shadow-light-lg {{ current_bloc.classes|join(" ") }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" data-aos="fade-up" data-aos-delay="200">
+    <div class="row gx-0">
+        <a class="col-12 col-md-6 bg-cover card-img-start" style="background-image: url({{ asset(current_bloc.image) }});" href="{{ current_bloc.image_link ?: "#" }}">
             <!-- Image (placeholder) -->
             <img class="img-fluid d-md-none invisible" src="{{ asset(current_bloc.image) }}" alt="{{ current_bloc.image.client_name }}">
 
@@ -14,27 +15,41 @@
 
             <!-- Body -->
             <div class="card-body">
-
-                {{ dump(current_bloc) }}
-
-
-                <!-- Title -->
-                {% if current_bloc.title %}
-                    {{ macros.headers(current_bloc, "3"," mb-5 ") }}
+                {% if current_bloc.label_1_label %}
+                    <div class="position-relative text-start mt-n8 me-n4 mb-3">
+                        {% if current_bloc.label_1_label %}
+                            {{ macros.label(current_bloc, 1) }}
+                        {% endif %}
+                        {% if current_bloc.label_2_label %}
+                            {{ macros.label(current_bloc, 2) }}
+                        {% endif %}
+                        {% if current_bloc.label_3_label %}
+                            {{ macros.label(current_bloc, 3) }}
+                        {% endif %}
+                    </div>
                 {% endif %}
 
+                {% if current_bloc.icon_icon or current_bloc.icon_logo %}
+                    <div class="mb-5">{{ macros.icon(current_bloc) }}</div>
+                {% endif %}
 
-                <!-- Text -->
-                <p class="mb-5 mb-md-7">
-                    {{ current_bloc.text|snl2br|raw }}
-                </p>
+                {% if current_bloc.title %}
+                    {{ macros.header(current_bloc,2) }}
+                {% endif %}
+
+                {% if current_bloc.text %}
+                    <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">{{ current_bloc.text|snl2br|raw }}</p>
+                {% endif %}
+
+                {% if current_bloc.author %}
+                    <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.author|snl2br|raw }}</p>
+                {% endif %}
 
                 {% if current_bloc.button_text %}
-                    <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ macros.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }}">{{ current_bloc.button_text }}</a>
+                    <div class="mt-5">
+                        {{ macros.button(current_bloc) }}
+                    </div>
                 {% endif %}
-
-
-
             </div>
         </div>
     </div>

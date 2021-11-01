@@ -37,7 +37,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $return = parent::getFunctions();
 
         // Define dump function
-        $return[] = new TwigFunction('dump', 'dump');
+        $return[] = new TwigFunction('dump', [$this,"dumpFunction"]);
         $return[] = new TwigFunction('asset', [$this,"assetFunction"]);
 
         return $return;
@@ -99,5 +99,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             $return = nl2br($string);
         }
         return $return;
+    }
+
+    /**
+     * @param $asset
+     * @return string|null
+     */
+    public function dumpFunction(...$vars)
+    {
+        foreach ($vars as $var) {
+            dump($var);
+        }
     }
 }

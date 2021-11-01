@@ -1,25 +1,44 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="{{ current_bloc.classes|join(" ") }} h-100 shadow-lg p-8 rounded-3 bg-white" data-aos="fade-up" data-aos-delay="200">
+<div class="{{ current_bloc.classes|join(" ") }} h-100 shadow-lg p-8 rounded-3 bg-white" style="{{ macros.getStyles(current_bloc, "")|trim }}" data-aos="fade-up" data-aos-delay="200">
     {% if current_bloc.image %}
-        {% if current_bloc.image_link %}<a href="{{ current_bloc.image_link }}">{% endif %}
-        <img class="img-fluid w-100 rounded mb-4" src="{{ asset(current_bloc.image) }}" alt="{{ current_bloc.image.client_name }}">
-        {% if current_bloc.image_link %}</a>{% endif %}
+        {{ macros.img(current_bloc, "img-fluid w-100 rounded mb-4") }}
     {% endif %}
 
+    {% if current_bloc.label_1_label %}
+        <div class="position-relative text-start mb-3">
+            {% if current_bloc.label_1_label %}
+                {{ macros.label(current_bloc, 1) }}
+            {% endif %}
+            {% if current_bloc.label_2_label %}
+                {{ macros.label(current_bloc, 2) }}
+            {% endif %}
+            {% if current_bloc.label_3_label %}
+                {{ macros.label(current_bloc, 3) }}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if current_bloc.icon_icon or current_bloc.icon_logo %}
+        <div class="mb-5">{{ macros.icon(current_bloc) }}</div>
+    {% endif %}
 
     {% if current_bloc.title %}
-        {{ macros.headers(current_bloc, "3"," mb-5 ") }}
+        {{ macros.header(current_bloc, "3"," mb-5 ") }}
     {% endif %}
-
 
     {% if current_bloc.text %}
-        <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="text-muted">{{ current_bloc.text|raw }}</p>
+        <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="text-muted">{{ current_bloc.text|snl2br|raw }}</p>
     {% endif %}
 
+    {% if current_bloc.author %}
+        <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.author|snl2br|raw }}</p>
+    {% endif %}
 
     {% if current_bloc.button_text %}
-        {{ macros.button(current_bloc) }}
+        <div class="mt-5">
+            {{ macros.button(current_bloc) }}
+        </div>
     {% endif %}
 
 </div>
