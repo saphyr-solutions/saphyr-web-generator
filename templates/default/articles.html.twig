@@ -1,4 +1,5 @@
 {% extends "_html.html.twig" %}
+{% import "/macros/tool.html.twig" as macros %}
 
 {% block content %}
     {% include 'includes/nav.html.twig' %}
@@ -7,16 +8,36 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-10 col-lg-9 col-xl-8">
-                    <h1 class="display-4 mb-10">{{ current_page.title|snl2br|raw }}</h1>
+                    <h1 class="display-4">{{ current_page.title|snl2br|raw }}</h1>
+
+                    {% if current_page.label_1_label %}
+                        <div>
+                            {% if current_page.label_1_label %}
+                                {{ macros.label(current_page, 1) }}
+                            {% endif %}
+                            {% if current_page.label_2_label %}
+                                {{ macros.label(current_page, 2) }}
+                            {% endif %}
+                            {% if current_page.label_3_label %}
+                                {{ macros.label(current_page, 3) }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
 
                     {% if current_page.image %}
-                        <figure class="figure mb-7">
+                        <figure class="figure mt-10 mb-7">
                             <img class="figure-img img-fluid rounded lift lift-lg" src="{{ asset(current_page.image) }}"
                                  alt="{{ current_page.title_alt }}">
                         </figure>
                     {% endif %}
 
                     <p class="text-muted">{{ current_page.text|snl2br|raw }}</p>
+
+                    {% if current_page.button_text %}
+                        <div class="mt-5 text-center">
+                            {{ macros.button(current_page) }}
+                        </div>
+                    {% endif %}
 
                     {% if current_page.files %}
                         <ul class="list-unstyled py-5 mt-5 border-top">
@@ -27,36 +48,12 @@
                     {% endif %}
 
                     <div class="row align-items-center py-5 border-top border-bottom mt-5">
-                        <div class="col ms-n5">
+                        <div class="col-md-6">
                             <!-- Date -->
                             <time class="fs-sm text-muted" datetime="{{ current_page.publication_date|date("Y-m-d") }}">
-                                Publié le {{ current_page.publication_date|date("d/m/Y") }}
+                                Publié le {{ current_page.publication_date|date("d/m/Y") }}{% if current_page.author %} par {{ current_page.author }}{% endif %}
                             </time>
                         </div>
-{#                        <div class="col-auto">#}
-{#                            <!-- Share -->#}
-{#                            <span class="h6 text-uppercase text-muted d-none d-md-inline me-4">Partager :</span>#}
-
-{#                            <!-- Icons -->#}
-{#                            <ul class="d-inline list-unstyled list-inline list-social">#}
-{#                                <li class="list-inline-item list-social-item me-3">#}
-{#                                    <a href="#!" class="text-decoration-none">#}
-{#                                        <img src="{{ asset("assets/dist/img/icons/social/instagram.svg") }}" class="list-social-icon" alt="...">#}
-{#                                    </a>#}
-{#                                </li>#}
-{#                                <li class="list-inline-item list-social-item me-3">#}
-{#                                    <a href="#!" class="text-decoration-none">#}
-{#                                        <img src="{{ asset("assets/dist/img/icons/social/facebook.svg") }}" class="list-social-icon" alt="...">#}
-{#                                    </a>#}
-{#                                </li>#}
-{#                                <li class="list-inline-item list-social-item me-3">#}
-{#                                    <a href="#!" class="text-decoration-none">#}
-{#                                        <img src="{{ asset("assets/dist/img/icons/social/twitter.svg") }}" class="list-social-icon" alt="...">#}
-{#                                    </a>#}
-{#                                </li>#}
-{#                            </ul>#}
-{#                        </div>#}
-
                     </div>
                 </div>
             </div>

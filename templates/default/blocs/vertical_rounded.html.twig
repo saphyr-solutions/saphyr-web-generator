@@ -1,6 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="{{ current_bloc.classes|join(" ") }} card shadow-light-lg lift lift-lg" style="{{ macros.getStyles(current_bloc, "")|trim }}"  data-aos="fade-up" data-aos-delay="200">
+<div class="{{ current_bloc.classes|join(" ") }} card shadow-light-lg lift lift-lg h-100" style="{{ macros.getStyles(current_bloc, "")|trim }}"  data-aos="fade-up" data-aos-delay="200">
     <!-- Image -->
     {% if current_bloc.image %}
         {{ macros.img(current_bloc, "card-img-top") }}

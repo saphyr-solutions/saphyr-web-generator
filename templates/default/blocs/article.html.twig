@@ -37,6 +37,20 @@
         </a>
     {% endif %}
 
+    <!-- Labels -->
+    {% if current_bloc.label_1_label %}
+        <div class="position-relative mx-6 mt-n4">
+            {% if current_bloc.label_1_label %}
+                {{ macros.label(current_bloc, 1) }}
+            {% endif %}
+            {% if current_bloc.label_2_label %}
+                {{ macros.label(current_bloc, 2) }}
+            {% endif %}
+            {% if current_bloc.label_3_label %}
+                {{ macros.label(current_bloc, 3) }}
+            {% endif %}
+        </div>
+    {% endif %}
 
     <!-- Body -->
     <a class="card-body" href="{{ url }}">
@@ -47,15 +61,13 @@
         <!-- Text -->
         <p class="mb-0 text-muted">{{ text|snl2br|raw }}</p>
 
-        {% if current_bloc.button_text %}
-            {{ macros.button(current_bloc) }}
-        {% endif %}
-
+{#        {% if current_bloc.button_text %}#}
+{#            {{ macros.button(current_bloc) }}#}
+{#        {% endif %}#}
     </a>
 
     <!-- Meta -->
     <a class="card-meta mt-auto" href="{{ url }}">
-
         <!-- Divider -->
         <hr class="card-meta-divider">
 
@@ -63,7 +75,5 @@
         <p class="h6 text-uppercase text-muted mb-0">
             <time datetime="{{ current_bloc.publication_date|date("Y-m-d") }}">Publié le {{ current_bloc.publication_date|date("d/m/Y") }}</time>
         </p>
-
     </a>
-
 </div>

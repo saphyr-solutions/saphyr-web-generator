@@ -54,7 +54,7 @@
     {% endif %}
 
     {% if backgrounds %}
-        {% set styles = styles|merge(["background:" ~ backgrounds|join(", "), "background-repeat: no-repeat", "background-size: cover"]) %}
+        {% set styles = styles|merge(["background:" ~ backgrounds|join(", ") ~ "!important", "background-repeat: no-repeat!important", "background-size: cover!important"]) %}
     {% endif %}
 
     {{ styles|join("; ") }}
@@ -73,28 +73,38 @@
 {% macro button(current_bloc, classes="",html="") %}
     <div class="{{ current_bloc.button_align }}">
         <a href="{{ current_bloc.button_link ?: "#" }}" style="{{ _self.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }} {{ classes }}" {{ html }}>
-            {% if current_bloc.button_logo %}<img src="{{ asset(current_bloc.button_logo) }}" class="me-2">{% endif %}
+            {% if current_bloc.button_logo %}
+                <img src="{{ asset(current_bloc.button_logo) }}" class="me-2">
+            {% elseif current_bloc.button_icon %}
+                <i class="{{ current_bloc.button_icon }} fa-fw me-2"></i>
+            {% endif %}
             {{ current_bloc.button_text }}
         </a>
     </div>
 {% endmacro %}
 
 {% macro icon(current_bloc, classes="",html="") %}
-    <div class="{{ current_bloc.icon_classes|join(" ") }}">
-        {% set classes = 'rounded-pill p-4 d-inline-block text-center w-25' ~ classes %}
-        {% set styles = _self.getStyles(current_bloc, "icon_")|trim %}
-        {% if current_bloc.icon_link %}<a style="{{ styles }}" {{ html}} class="{{ classes }}" href="{{ current_bloc.icon_link }}" target="{{ current_bloc.icon_target }}">{% else %}<span style="{{ styles }}" {{ html}} class="{{ classes }}">{% endif %}
-        <img src="{{ asset(current_bloc.icon_logo) }}" alt="" class="img-fluid">
-        {% if current_bloc.icon_link %}</a>{% else %}</span>{% endif %}
+    <div class="{{ current_bloc.icon_classes|join(" ") }} {{ classes }}">
+        {% set elementAttr = 'class="icon-circle bg-primary text-white" style="'~_self.getStyles(current_bloc, "icon_")|trim~'"' %}
+        {% set elementIcon = '<i class="'~current_bloc.icon_icon~' fa-lg"></i>' %}
+        {% if current_bloc.icon_logo %}
+            {% set elementIcon = '<img src="'~asset(current_bloc.icon_logo)~'" style="width:2.5rem; height:2.5rem; object-fit:contain;">' %}
+        {% endif %}
+
+        {% if current_bloc.icon_link %}
+            <a href="{{ current_bloc.icon_link }}" target="{{ current_bloc.icon_target }}" {{ elementAttr|raw }}>{{ elementIcon|raw }}</a>
+        {% else %}
+            <span {{ elementAttr|raw }}>{{ elementIcon|raw }}</span>
+        {% endif %}
     </div>
 {% endmacro %}
 
 {% macro label(current_bloc, number, classes="",html="") %}
   <span class="badge rounded-pill" style="{{ _self.getStyles(current_bloc, "label_"~number~"_")|trim }}">
       {% if attribute(current_bloc,"label_"~number~"_link") %}
-          <a href="{{ attribute(current_bloc,"label_"~number~"_link") }}" target="{{ attribute(current_bloc,"label_"~number~"_target") }}" style="color: inherit;">{{ attribute(current_bloc,"label_"~number~"_label") }}</a>
+          <a class="h6" href="{{ attribute(current_bloc,"label_"~number~"_link") }}" target="{{ attribute(current_bloc,"label_"~number~"_target") }}" style="color: inherit;">{{ attribute(current_bloc,"label_"~number~"_label") }}</a>
       {% else %}
-          <span class="h6 text-uppercase">{{ attribute(current_bloc,"label_"~number~"_label") }}</span>
+          <span class="h6">{{ attribute(current_bloc,"label_"~number~"_label") }}</span>
       {% endif %}
   </span>
 {% endmacro %}

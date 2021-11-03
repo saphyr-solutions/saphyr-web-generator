@@ -35,6 +35,12 @@
     <!-- Template Main CSS File -->
     <link href="{{ asset("assets/dist/css/libs.bundle.css") }}" rel="stylesheet">
     <link href="{{ asset("assets/dist/css/theme.bundle.css") }}" rel="stylesheet">
+    <link href="{{ asset("assets/vendor/fontawesome-pro-5.15.4-web/css/all.min.css") }}" rel="stylesheet">
+    <link href="{{ asset("assets/vendor/simplelightbox-master/dist/simple-lightbox.min.css") }}" rel="stylesheet">
+
+    <style>
+        .sl-overlay {opacity: 1;}
+    </style>
 
     {% if current_page.html_header %}
         {{ current_page.html_header|raw }}
@@ -48,5 +54,9 @@
 <!-- Template Main JS File -->
 <script src="{{ asset('assets/dist/js/vendor.bundle.js') }}"></script>
 <script src="{{ asset('assets/dist/js/theme.bundle.js') }}"></script>
+<script src="{{ asset('assets/vendor/simplelightbox-master/dist/simple-lightbox.min.js') }}"></script>
+<script>
+    new SimpleLightbox('[data-gallery]');
+</script>
 </body>
 </html>

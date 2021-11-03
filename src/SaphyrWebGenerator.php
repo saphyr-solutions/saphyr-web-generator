@@ -228,6 +228,8 @@ class SaphyrWebGenerator
     public function render()
     {
         try {
+            $this->redirectHttpsWww();
+
             $this->compilScss();
 
             // Detect type of page
@@ -254,6 +256,39 @@ class SaphyrWebGenerator
     }
 
     /**
+     *
+     */
+    protected function redirectHttpsWww()
+    {
+        $web = $this->getWeb();
+
+        $redirect = $_SERVER["SERVER_NAME"];
+        if (isset($web["force_www"]) && $web["force_www"] && substr($_SERVER["SERVER_NAME"], 0, 4) !== "www.") {
+            $redirect = "www." . $redirect;
+        }
+        if (isset($web["force_https"]) && $web["force_https"] && !self::_isHttps()) {
+            $redirect = "https://" . $redirect;
+        }
+
+        if ($redirect !== $_SERVER["SERVER_NAME"]) {
+            if (substr($redirect, 0, 8) !== "https://" && substr($redirect, 0, 8) !== "http://") {
+                $redirect = "http://" . $redirect;
+            }
+            $redirect .= "/" . $this->request_uri;
+            header("Location: " . $redirect, true, 301);
+            exit;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected static function _isHttps()
+    {
+        return isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off';
+    }
+
+    /**
      * @param int $code
      * @return mixed
      */
@@ -272,7 +307,7 @@ class SaphyrWebGenerator
         $datas = $_POST;
         if (isset($datas["password"])) {
             // Verify page password
-            $isValid = $this->api->isValid($this->getPageModuleId(), $page["unique"], ["password" => $datas["password"]]);
+            $isValid = $this->api->isValid($this->getRequestPageModuleId(), $page["unique"], ["password" => $datas["password"]]);
             if ($isValid["isValid"]["password"]) {
                 // Set to session
                 $_SESSION["allowed_pages"][$page["unique"]] = time();
