@@ -94,8 +94,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function snl2brFunction($string)
     {
         $return = $string;
-        $isHtml = $string !== strip_tags($string);
-        if (!$isHtml) {
+        $addBr = strpos($string, '<br>') === false && strpos($string, '<br />') === false && strpos($string, '<br/>') === false;
+        if ($addBr) {
             $return = nl2br($string);
         }
         return $return;
