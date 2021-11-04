@@ -42,6 +42,10 @@
         .sl-overlay {opacity: 1;}
     </style>
 
+    {% if web.html_header %}
+        {{ web.html_header|raw }}
+    {% endif %}
+
     {% if current_page.html_header %}
         {{ current_page.html_header|raw }}
     {% endif %}
