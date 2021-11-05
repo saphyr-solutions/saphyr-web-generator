@@ -295,7 +295,7 @@ class Api
     {
         $path = $this->tempStorage . '__SC__' . $array['id'] . '_' . $array['server_name'];
 
-        if (strtotime($array['modification_date']) + $this->ttl > time()) {
+        if (strtotime($array['modification_date']) > time() + $this->ttl) {
             @unlink($path);
         }
 
