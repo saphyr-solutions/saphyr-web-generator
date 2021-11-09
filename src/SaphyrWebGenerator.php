@@ -484,6 +484,8 @@ class SaphyrWebGenerator
                     return array_merge($bloc, $item);
                 }, $datasToLoad);
 
+                $datasToLoad = $this->filterElements($datasToLoad, false);
+
                 $tmp = array_slice($return, 0, $key);
                 $tmp = array_merge($tmp, $datasToLoad);
                 $tmp = array_merge($tmp, array_slice($return, $key+1));
