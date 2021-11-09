@@ -266,7 +266,7 @@ class SaphyrWebGenerator
         if (isset($web["force_www"]) && $web["force_www"] && substr($_SERVER["SERVER_NAME"], 0, 4) !== "www.") {
             $redirect = "www." . $redirect;
         }
-        if (isset($web["force_https"]) && $web["force_https"] && !self::_isHttps()) {
+        if (isset($web["force_https"]) && $web["force_https"] && !self::_isHttps() && $_SERVER["REMOTE_ADDR"] !== "127.0.0.1") {
             $redirect = "https://" . $redirect;
         }
 
@@ -558,10 +558,14 @@ class SaphyrWebGenerator
                 continue;
             }
             if (isset($element["web"])) {
-                if (is_array($element["web"]) && !in_array($this->getWeb()["unique"], $element["web"])) {
-                    continue;
-                } else if ($element["web"] != $this->getWeb()["unique"]) {
-                    continue;
+                if (is_array($element["web"])) {
+                    if (!in_array($this->getWeb()["unique"], $element["web"])) {
+                        continue;
+                    }
+                } else {
+                    if ($element["web"] != $this->getWeb()["unique"]) {
+                        continue;
+                    }
                 }
             }
             if (isset($element["publication_date"])) {

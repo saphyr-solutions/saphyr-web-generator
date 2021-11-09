@@ -108,3 +108,22 @@
       {% endif %}
   </span>
 {% endmacro %}
+
+{% macro files(current_bloc, classes="",html="") %}
+    <ul class="list-unstyled py-5 mt-5 border-top {{ classes }}" {{ html }}>
+        {% for file in current_bloc.files %}
+            {% if file.extension == "jpg" or file.extension == "jpeg" or file.extension == "png" or file.extension == "gif" %}
+                {% set icon = "fa-file-image" %}
+            {% elseif file.extension == "pdf" %}
+                {% set icon = "fa-file-pdf" %}
+            {% elseif file.extension == "doc" or file.extension == "docx" %}
+                {% set icon = "fa-file-word" %}
+            {% elseif file.extension == "xls" or file.extension == "xlsx" or file.extension == "csv" %}
+                {% set icon = "fa-file-excel" %}
+            {% else %}
+                {% set icon = "fa-file" %}
+            {% endif %}
+            <li><a href="{{ asset(file) }}" target="_blank"><i class="fad {{ icon }} fa-fw fa-lg"></i> {{ file.client_name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endmacro %}

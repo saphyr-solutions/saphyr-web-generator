@@ -38,6 +38,10 @@
                 <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">{{ current_bloc.text|raw|nl2br }}</p>
             {% endif %}
 
+            {% if current_bloc.files %}
+                {{ macros.files(current_bloc) }}
+            {% endif %}
+
             <!-- Author -->
             {% if current_bloc.author %}
                 <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.author|snl2br|raw }}</p>
