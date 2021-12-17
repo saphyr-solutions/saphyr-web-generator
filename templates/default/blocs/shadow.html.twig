@@ -1,6 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="{{ current_bloc.classes|join(" ") }} h-100 shadow-lg p-8 rounded-3 bg-white" style="{{ macros.getStyles(current_bloc, "")|trim }}" data-aos="fade-up" data-aos-delay="200">
+<div class="{{ current_bloc.classes|join(" ") }} h-100 shadow-lg p-8 rounded-3 bg-white" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
     {% if current_bloc.image %}
         {{ macros.img(current_bloc, "img-fluid w-100 rounded mb-4") }}
     {% endif %}

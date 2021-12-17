@@ -3,6 +3,7 @@ namespace SaphyrWebGenerator;
 
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
+use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\Loader\LoaderInterface;
 use Twig\TwigFilter;
@@ -37,7 +38,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $return = parent::getFunctions();
 
         // Define dump function
-        $return[] = new TwigFunction('dump', [$this,"dumpFunction"]);
+//        $return[] = new TwigFunction('dump', [$this,"dumpFunction"]);
         $return[] = new TwigFunction('asset', [$this,"assetFunction"]);
 
         return $return;
@@ -69,7 +70,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param $asset
      * @return string|null
      */
-    public function assetFunction($asset)
+    public function assetFunction($asset,$params=null)
     {
         $return = null;
         if (is_string($asset)) {
@@ -82,7 +83,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             }
         } elseif (is_array($asset) && isset($asset["id"])) {
             // Load file from API
-            $return = '/' . $this->saphyrWebGenerator->api->getMedia($asset);
+			if(isset($params)) {
+				if(!is_array($params)) $params=[];
+				$allowed  = ['width', 'height'];
+				$filtered = array_filter(
+					$params,
+					function ($key) use ($allowed) {
+						return in_array($key, $allowed);
+					},
+					ARRAY_FILTER_USE_KEY);
+			}
+            $return = '/' . $this->saphyrWebGenerator->api->getMedia($asset,$params);
         }
         return $return;
     }

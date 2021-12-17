@@ -1,6 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="card card-row shadow-light-lg {{ current_bloc.classes|join(" ") }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" data-aos="fade-up" data-aos-delay="200">
+<div class="card card-row shadow-light-lg {{ current_bloc.classes|join(" ") }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
     <div class="row gx-0">
         <a class="col-12 col-md-6 bg-cover card-img-start" style="background-image: url({{ asset(current_bloc.image) }});" href="{{ current_bloc.image_link ?: "#" }}">
             <!-- Image (placeholder) -->

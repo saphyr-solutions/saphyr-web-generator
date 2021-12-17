@@ -1,0 +1,93 @@
+.adminMenu { width:180px;transform:translateX(150px);position:fixed;top:0;right:0;z-index:99999;transition: all 0.2s ease-in-out;}
+.adminMenu.opened { transform:translateX(0px);}
+.adminMenu a { padding:0px 10px;cursoir:pointer;}
+.adminMenu .actionBtn { width:20px;cursor:pointer;flex: 0 0 auto;}
+.adminMenu .menuBtn { flex: 1 1 auto;text-align: right; }
+.adminMenu.opened .actionBtn svg { transform: rotate(180deg);}
+.adminMenu > div {
+  padding: 5px;
+  background-image :repeating-linear-gradient(
+      45deg,
+      rgba(227, 227, 227, 0.4),
+      rgba(227, 227, 227, 0.4) 10px,
+      rgba(161, 161, 161, 0.4) 10px,
+      rgba(161, 161, 161, 0.4) 20px
+  );
+  border-radius: 0px 0px 0px 10px;
+  box-shadow: 1px 2px 5px #666;
+  color:#333;
+}
+.editor {
+  position: relative !important;
+}
+
+.editor:after {
+  content: " ";
+  border-radius:5px;
+  transition: all 0.25s ease-in-out;
+  background:transparent;
+  background-image: unset;
+  position:absolute;
+  display:block;
+  box-sizing: border-box;
+  opacity: 0;
+  z-index:-1;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(227, 227, 227, 0.4),
+      rgba(227, 227, 227, 0.4) 10px,
+      rgba(161, 161, 161, 0.4) 10px,
+      rgba(161, 161, 161, 0.4) 20px
+  );
+  top:-10px;bottom:-10px;left:-10px;right:-10px;
+}
+
+.editor .editor:after {
+  background-image :repeating-linear-gradient(
+      45deg,
+      rgba(225, 209, 151, 0.8),
+      rgba(225, 209, 151, 0.8) 10px,
+      rgba(220, 203, 95, 0.8) 10px,
+      rgba(220, 203, 95, 0.8) 20px
+  );
+}
+
+.editor.hover:after {
+  opacity: 1;
+  cursor:pointer;
+}
+.editor .editor.hover:after {
+  opacity: 1;
+  cursor:pointer;
+}
+.editor:not(.section) .editor_container {
+  top: 0px;
+}
+.editor.section .editor_container {
+  bottom:20px;
+}
+.editor .editor_container {
+  position:absolute;
+  display: block;
+  right:0px;
+
+  position:absolute;
+  text-align:right;
+  color:#000;font-size:14px;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease-in-out;
+  opacity: 0;
+
+}
+
+.editor_container .inlinebtn { display:inline-block;margin-top:5px; background:#fff;padding:5px;border-radius:5px;
+border:1px solid #ccc;box-shadow: 1px 2px 5px  #666;}
+.editor_container .inlinebtn svg { margin:0px 5px;width:16px;height:auto;}
+.editor.hover>.editor_container {
+  opacity: 1;
+  z-index:200000;
+  cursor:pointer;
+
+}

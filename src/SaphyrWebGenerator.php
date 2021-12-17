@@ -62,6 +62,7 @@ class SaphyrWebGenerator
      */
     public function __construct(Config $config)
     {
+        session_start();
         $this->config = $config;
         $this->api = new Api([
             'client' => $config->api_client,
@@ -69,12 +70,13 @@ class SaphyrWebGenerator
             'privKey' => $config->api_private_key,
             'user' => $config->api_user_login,
             'secret' => $config->api_user_secret,
-            'ttl' => $config->api_ttl,
+            'ttl' => $_SESSION['isEditMote']?0:$config->api_ttl,
             'debug' => $config->api_debug,
             'tempStorage' => $config->api_temp_storage,
             'webRoot' => $config->api_temp_storage
         ]);
         $this->api->getToken();
+
 
         $this->web = $this->getWeb(true);
         $this->page_module_id = $this->getPageModuleId(true);
@@ -83,7 +85,11 @@ class SaphyrWebGenerator
         $this->request_uri = $this->getRequestUri();
         $this->request_page_type = $this->getRequestPageType(true);
 
-        session_start();
+
+		if($this->config->editor_mode=='sph22') $_SESSION['isEditMode']=true;
+		if($this->config->editor_mode=='Osph22') $_SESSION['isEditMode']=false;
+
+
     }
 
     /**
@@ -431,7 +437,14 @@ class SaphyrWebGenerator
                 }
             }
         }
+		$module = $this->api->getModuleInfos($this->getPageModuleId());
+		$config = $this->api->getModuleElementField($this->getPageModuleId(), 'sections');
 
+		$return['editor'] = [
+			"slug" => $module['slug'],
+			'id' => $module['id'],
+			"section" => ($config ? $config['id']:0)
+		];
         return $return;
     }
 
@@ -446,8 +459,12 @@ class SaphyrWebGenerator
 
         $return = $this->filterElements($all, $currentPage["sections"]);
 
+		$module = $this->api->getModuleInfos($this->getSectionModuleId());
+		$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
+
         // Add Blocs to each items
         foreach ($return as $key => $item) {
+			$return[$key]['module']=['slug' =>$module['slug'],'id' =>$module['id'],'add' => $config?$config['id']:null];
             $return[$key]["blocs"] = $this->getCurrentPageSectionBlocs($item);
         }
 
@@ -464,8 +481,12 @@ class SaphyrWebGenerator
         $all = $this->api->getModuleElements($this->getBlocModuleId())["results"];
         $return = $this->filterElements($all, $section["blocs"]);
 
-        foreach ($return as $key => $bloc) {
+		$module = $this->api->getModuleInfos($this->getBlocModuleId());
+		$moduleSection = $this->api->getModuleInfos($this->getSectionModuleId());
+		$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
+		foreach ($return as $key => $bloc) {
             if ($bloc["load_from"]) {
+				$moduleSrcID =$bloc["load_from"];
                 $bloc["load_from"] = $this->api->getModuleInfos($bloc["load_from"]);
                 $confToLoad = [
                     'module' => $bloc["load_from"]["id"],
@@ -485,15 +506,23 @@ class SaphyrWebGenerator
                 }, $datasToLoad);
 
                 $datasToLoad = $this->filterElements($datasToLoad, false);
-
                 $tmp = array_slice($return, 0, $key);
                 $tmp = array_merge($tmp, $datasToLoad);
                 $tmp = array_merge($tmp, array_slice($return, $key+1));
 
                 $return = $tmp;
-            }
-        }
+				$module = $this->api->getModuleInfos($moduleSrcID);
+				$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
+				foreach($return as $k => $v) {
+					$return[$k]['section']=['slug' =>$moduleSection['slug'],'id' =>$this->getSectionModuleId(),'unique' => $section['unique'],'add' => $config?$config['id']:''];
+					$return[$k]['module']=['slug' =>$module['slug'],'id' =>$module['id']];
+				}
+            } else {
+				$return[$key]['section']=['slug' =>$moduleSection['slug'],'id' =>$this->getSectionModuleId(),'unique' => $section['unique'],'add' => $config?$config['id']:''];
+				$return[$key]['module']=['slug' =>$module['slug'],'id' =>$module['id']];
 
+			}
+        }
         return $return;
     }
 
@@ -507,9 +536,14 @@ class SaphyrWebGenerator
         $menu = $this->getMenu();
         $currentPage = $this->getCurrentPage();
 
+		$moduleId = $this->getRequestPageModuleId();
+		$module = $this->api->getModuleInfos($moduleId);
         return [
             "web" => $web,
             "menu" => $menu,
+			"moduleId" => $moduleId,
+			"module" => $module,
+			"config" => $this->config,
             "current_page" => $currentPage,
             "request_uri" => $this->getRequestUri()
         ];
@@ -535,7 +569,8 @@ class SaphyrWebGenerator
     private function getTwigEnvironment(): Environment
     {
         $loader = new FilesystemLoader($this->getTemplatePaths());
-        $return = new Environment($loader);
+        $return = new Environment($loader,[ 'debug' => true]);
+		$return->addExtension(new \Twig\Extension\DebugExtension());
         $return->addExtension(new TwigExtension($this, $loader));
         return $return;
     }

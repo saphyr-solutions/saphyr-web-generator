@@ -71,6 +71,9 @@ class Config
 
     public $secured_pages_ttl;
 
+
+	public $editor_mode;
+
     /**
      * @param int $web_module_id
      * @param string $web_unique
@@ -91,6 +94,7 @@ class Config
         $this->api_user_login = $api_user_login;
         $this->api_user_secret = $api_user_secret;
         $this->api_temp_storage = $api_temp_storage;
+		$this->editor_mode = isset($_REQUEST['edtMode']) ? $_REQUEST['edtMode'] :null;
         $this->api_ttl = 30;
         $this->api_debug = false;
         $this->class_root_dir = './vendor/saphyr-solutions/saphyr-web-generator/';

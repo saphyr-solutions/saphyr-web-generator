@@ -1,7 +1,7 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="py-10 pt-md-14" style="{{ macros.getStyles(current_bloc, "")|trim }}">
-    <div class="row align-items-center">
+<div class="py-10 pt-md-14"  style="{{ macros.getStyles(current_bloc, "")|trim }}">
+    <div {{ macros.getEditableBloc(current_bloc) }} class="row align-items-center">
         <div class="col-12 col-md-5 col-lg-6 order-md-2">
             {% if current_bloc.image %}
                 {{ macros.img(current_bloc, "img-fluid mb-6 mb-md-0 aos-init aos-animate", 'data-aos="fade-up" data-aos-delay="100"') }}

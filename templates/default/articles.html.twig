@@ -4,10 +4,10 @@
 {% block content %}
     {% include 'includes/nav.html.twig' %}
 
-    <section class="py-15" data-aos="fade-up" data-aos-delay="200">
+    <section  class="py-15" data-aos="fade-up" data-aos-delay="200">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-12 col-md-10 col-lg-9 col-xl-8">
+                <div {{  macros.getEditable(module,current_page) }} class="col-12 col-md-10 col-lg-9 col-xl-8">
                     <h1 class="display-4">{{ current_page.title|snl2br|raw }}</h1>
 
                     {% if current_page.label_1_label %}

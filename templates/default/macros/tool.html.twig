@@ -1,6 +1,6 @@
 {% macro buildSection(current_section) %}
     <div style="{{ _self.getStyles(current_section, "")|trim }}">
-        <div class="{{ current_section.classes|join(" ") }}">
+        <div {{ _self.getEditableSection(current_section) }} class="{{ current_section.classes|join(" ") }}">
             <div class="row gy-5">
 
                 {% set columns = current_section.columns %}
@@ -60,14 +60,14 @@
     {{ styles|join("; ") }}
 {% endmacro %}
 
-{% macro img(current_bloc,classes="",html="") %}
+{% macro img(current_bloc,classes="",html="",params="") %}
     {% if current_bloc.image_link %}<a href="{{ current_bloc.image_link }}">{% endif %}
-    <img class="{{ classes }}" src="{{ asset(current_bloc.image) }}" {{ html }} alt="{{ current_bloc.image.client_name }}">
+    <img class="{{ classes }}" src="{{ asset(current_bloc.image,params) }}" {{ html }} alt="{{ current_bloc.image.client_name }}">
     {% if current_bloc.image_link %}</a>{% endif %}
 {% endmacro %}
 
 {% macro header(current_bloc, level = "1",classes="",html="") %}
-     <h{{ level}} class="{{ current_bloc.classes|join(" ") }} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}"  {{ html }}>{{ current_bloc.title|snl2br|raw }}</h{{ level }}>
+     <h{{ level}}  class="{{ current_bloc.classes|join(" ") }} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}"  {{ html }}>{{ current_bloc.title|snl2br|raw }}</h{{ level }}>
 {% endmacro %}
 
 {% macro button(current_bloc, classes="",html="") %}
@@ -126,4 +126,37 @@
             <li><a href="{{ asset(file) }}" target="_blank"><i class="fad {{ icon }} fa-fw fa-lg"></i> {{ file.client_name }}</a></li>
         {% endfor %}
     </ul>
+{% endmacro %}
+{% macro getEditMode(current_page,config) %}
+
+    {% if  _session.isEditMode %}
+        <link href="{{ asset('assets/backend/editor.css') }}" rel="stylesheet">
+        <script type="text/javascript">
+            var editor ={ client : "{{ config.api_client }}", slug: '{{ current_page.editor.slug }}', id:'{{ current_page.editor.id }}',section: '{{ current_page.editor.section }}',edited : '{{ current_page.unique  }}' };
+        </script>
+        <script defer src="{{ asset('assets/backend/editor.js') }}">
+
+        </script>
+    {% endif %}
+{% endmacro %}
+{% macro getEditableSection(current_section) %}
+    {% if  _session.isEditMode %}
+
+        data-editor='{"form": "{{ current_section.module.add }}", "module_slug": "{{ current_section.module.slug }}","module_id": "{{ current_section.module.id }}","id":"{{ current_section.unique }}"}'
+    {% endif %}
+{% endmacro %}
+
+
+{% macro getEditableBloc(current_bloc) %}
+    {% if  _session.isEditMode %}
+
+        data-editor='{"module_slug": "{{ current_bloc.module.slug }}","module_id": "{{ current_bloc.module.id }}","id":"{{ current_bloc.unique }}"}'
+    {% endif %}
+{% endmacro %}
+
+{% macro getEditable(module,current_bloc) %}
+    {% if  _session.isEditMode %}
+
+        data-editor='{"module_slug": "{{ module.slug }}","module_id": "{{ module.id }}","id":"{{ current_bloc.unique }}"}'
+    {% endif %}
 {% endmacro %}

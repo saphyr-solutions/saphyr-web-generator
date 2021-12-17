@@ -291,9 +291,16 @@ class Api
     }
 
 
-    public function getMedia($array)
+    public function getMedia($array,$params=null)
     {
-        $path = $this->tempStorage . '__SC__' . $array['id'] . '_' . $array['server_name'];
+
+		$extra_storage = '';
+		if(isset($params) && is_array($params)) {
+			if(isset($params['width'])) { $extra_storage.='_w'.intval($params['width']);}
+			if(isset($params['height'])) { $extra_storage.='_h'.intval($params['height']);}
+
+		}
+        $path = $this->tempStorage . '__SC__' . $array['id'] . $extra_storage.'_' . $array['server_name'];
 
         if (strtotime($array['modification_date']) > time() + $this->ttl) {
             @unlink($path);
@@ -301,7 +308,7 @@ class Api
 
         if (!file_exists($path)) {
             try {
-                $result = $this->call('/api/v1/file/' . $array['id']);
+                $result = $this->call('/api/v1/file/' . $array['id'],'GET',$params);
                 $file = fopen($path, "wb");
                 fwrite($file, $result);
                 fclose($file);
@@ -310,7 +317,7 @@ class Api
             }
         }
 
-        return $this->webRoot . '__SC__' . $array['id'] . '_' . $array['server_name'];
+        return $this->webRoot . '__SC__' . $array['id'] . $extra_storage.'_'. $array['server_name'];
     }
 
     public function deleteElement($moduleId, $uniqueId)
