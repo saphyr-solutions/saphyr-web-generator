@@ -31,7 +31,7 @@
         <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>
     {% endif %}
 
-    {% if current_bloc.values.files.value %}
+    {% if current_bloc.values.files %}
         {{ macros.files(current_bloc) }}
     {% endif %}
 

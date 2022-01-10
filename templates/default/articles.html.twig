@@ -8,46 +8,46 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div {{  macros.getEditable(module,current_page) }} class="col-12 col-md-10 col-lg-9 col-xl-8">
-                    <h1 class="display-4">{{ current_page.title|snl2br|raw }}</h1>
+                    <h1 class="display-4">{{ current_page.values.title.value|snl2br|raw }}</h1>
 
-                    {% if current_page.label_1_label %}
+                    {% if current_page.values.label_1_label.value %}
                         <div>
-                            {% if current_page.label_1_label %}
+                            {% if current_page.values.label_1_label.value %}
                                 {{ macros.label(current_page, 1) }}
                             {% endif %}
-                            {% if current_page.label_2_label %}
+                            {% if current_page.values.label_2_label.value %}
                                 {{ macros.label(current_page, 2) }}
                             {% endif %}
-                            {% if current_page.label_3_label %}
+                            {% if current_page.values.label_3_label.value %}
                                 {{ macros.label(current_page, 3) }}
                             {% endif %}
                         </div>
                     {% endif %}
 
-                    {% if current_page.image %}
+                    {% if current_page.values.image.value %}
                         <figure class="figure mt-10 mb-7">
-                            <img class="figure-img img-fluid rounded lift lift-lg" src="{{ asset(current_page.image) }}"
-                                 alt="{{ current_page.title_alt }}">
+                            <img class="figure-img img-fluid rounded lift lift-lg" src="{{ asset(current_page.values.image) }}"
+                                 alt="{{ current_page.values.title_alt.value }}">
                         </figure>
                     {% endif %}
 
-                    <p class="text-muted">{{ current_page.text|snl2br|raw }}</p>
+                    <p class="text-muted">{{ current_page.values.text.value|snl2br|raw }}</p>
 
-                    {% if current_page.button_text %}
+                    {% if current_page.values.button_text.value %}
                         <div class="mt-5 text-center">
                             {{ macros.button(current_page) }}
                         </div>
                     {% endif %}
 
-                    {% if current_page.files %}
+                    {% if current_page.values.files %}
                         {{ macros.files(current_page) }}
                     {% endif %}
 
                     <div class="row align-items-center py-5 border-top border-bottom mt-5">
                         <div class="col-md-6">
                             <!-- Date -->
-                            <time class="fs-sm text-muted" datetime="{{ current_page.publication_date|date("Y-m-d") }}">
-                                Publié le {{ current_page.publication_date|date("d/m/Y") }}{% if current_page.author %} par {{ current_page.author }}{% endif %}
+                            <time class="fs-sm text-muted" datetime="{{ current_page.values.publication_date.value|date("Y-m-d") }}">
+                                Publié le {{ current_page.values.publication_date.value|date("d/m/Y") }}{% if current_page.values.author.value %} par {{ current_page.values.author.value }}{% endif %}
                             </time>
                         </div>
                     </div>

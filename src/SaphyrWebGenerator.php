@@ -239,7 +239,6 @@ class SaphyrWebGenerator
             $pageType = $this->getRequestPageType();
 
             $context = $this->getTwigContext();
-//            dd($context);
             if (!$context["web"]) {
                 return $this->renderError(404);
             }
@@ -430,7 +429,7 @@ class SaphyrWebGenerator
             $all = $this->filterElements($all, false);
 
             foreach ($all as $item) {
-                if ($this->getRequestPageType() . "/" . $item["url"] === $this->getRequestUri()) {
+                if ($this->getRequestPageType() . "/" . $item["values"]["url"]["value"] === $this->getRequestUri()) {
                     $return = $item;
                     break;
                 }
@@ -501,12 +500,14 @@ class SaphyrWebGenerator
                     $confToLoad["limit"] = [0, $bloc["values"]["load_limit"]["value"]];
                 }
                 $datasToLoad = $this->api->getItems($confToLoad);
-                dd($datasToLoad);
                 $datasToLoad = array_map(function ($item) use ($bloc) {
-                    return array_merge($bloc, $item);
+                    $item = array_merge($bloc, $item);
+                    $item["values"] = array_merge($bloc["values"], $item["values"]);
+                    return $item;
                 }, $datasToLoad);
 
                 $datasToLoad = $this->filterElements($datasToLoad, false);
+
                 $tmp = array_slice($return, 0, $key);
                 $tmp = array_merge($tmp, $datasToLoad);
                 $tmp = array_merge($tmp, array_slice($return, $key+1));

@@ -227,6 +227,13 @@ function SaphyrEditor(editor) {
             });
         }
     });
+
+    // add empty class
+    EditorElements.forEach(function (e) {
+        if (e.offsetHeight === 0) {
+            e.style.minHeight = "200px";
+        }
+    });
 }
 document.addEventListener('DOMContentLoaded', function () {
     SaphyrEditor(editor);
