@@ -1,9 +1,8 @@
 {% macro buildSection(current_section) %}
     <div style="{{ _self.getStyles(current_section, "")|trim }}">
-        <div {{ _self.getEditableSection(current_section) }} class="{{ current_section.classes|join(" ") }}">
+        <div {{ _self.getEditableSection(current_section) }} class="{% for class in current_section.values.classes %}{{ class.value }} {% endfor %}">
             <div class="row gy-5">
-
-                {% set columns = current_section.columns %}
+                {% set columns = current_section.values.columns.value %}
                 {% if columns == "col-3_col-3_col-3_col-3" %}
                     {% set columns = "col-sm-6 col-lg-3_col-sm-6 col-lg-3_col-sm-6 col-lg-3_col-md-3" %}
                 {% elseif columns == "col-4_col-4_col-4" %}
@@ -14,13 +13,13 @@
 
                 {% set columnsClasses = columns|split("_") %}
                 {% for key, current_bloc in current_section.blocs %}
-                    {% set newColumn = not current_bloc.same_column %}
-                    {% set closeColumn = not current_section.blocs[key+1].same_column %}
+                    {% set newColumn = not current_bloc.values.same_column[0].value %}
+                    {% set closeColumn = not current_section.blocs[key+1].values.same_column[0].value %}
                     {% set keyToSearch = key % columnsClasses|length %}
                     {% set columnClass = columnsClasses[keyToSearch] %}
 
                     {% if newColumn %}<div class="{{ columnClass }}">{% endif %}
-                    {{ include('blocs/' ~ current_bloc.type ~ '.html.twig', {current_bloc: current_bloc}, with_context = true) }}
+                    {{ include('blocs/' ~ current_bloc.values.type.value ~ '.html.twig', {current_bloc: current_bloc}, with_context = true) }}
                     {% if closeColumn %}</div>{% endif %}
                 {% endfor %}
             </div>
@@ -30,27 +29,27 @@
 
 {% macro getStyles(element, prefix) %}
     {% set styles = [] %}
-    {% if attribute(element, prefix ~ "color") %}
-        {% set styles = styles|merge(["color: " ~ attribute(element, prefix ~ "color") ~ "!important"]) %}
+    {% if attribute(element.values, prefix ~ "color").value %}
+        {% set styles = styles|merge(["color: " ~ attribute(element.values, prefix ~ "color").value ~ "!important"]) %}
     {% endif %}
 
     {# Background #}
     {% set backgrounds = [] %}
-    {% if attribute(element, prefix ~ "background_image") %}
-        {% if attribute(element, prefix ~ "background_color") and attribute(element, prefix ~ "background_color_alt") %}
-            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color")~" 0%, "~attribute(element, prefix ~ "background_color_alt")~" 100%)"]) %}
-        {% elseif attribute(element, prefix ~ "background_color") %}
-            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color")~" 0%, "~attribute(element, prefix ~ "background_color")~" 100%)"]) %}
-        {% elseif attribute(element, prefix ~ "background_color_alt") %}
-            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color_alt")~" 0%, "~attribute(element, prefix ~ "background_color_alt")~" 100%)"]) %}
+    {% if attribute(element.values, prefix ~ "background_image").value %}
+        {% if attribute(element.values, prefix ~ "background_color").value and attribute(element.values, prefix ~ "background_color_alt").value %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
+        {% elseif attribute(element.values, prefix ~ "background_color").value %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color").value~" 100%)"]) %}
+        {% elseif attribute(element.values, prefix ~ "background_color_alt").value %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color_alt").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
         {% endif %}
-        {% set backgrounds = backgrounds|merge(["url("~asset(attribute(element, prefix ~ "background_image"))~") center center no-repeat"]) %}
-    {% elseif attribute(element, prefix ~ "background_color") and attribute(element, prefix ~ "background_color_alt") %}
-        {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element, prefix ~ "background_color")~" 0%, "~attribute(element, prefix ~ "background_color_alt")~" 100%)"]) %}
-    {% elseif attribute(element, prefix ~ "background_color") %}
-        {% set backgrounds = backgrounds|merge([attribute(element, prefix ~ "background_color")]) %}
-    {% elseif attribute(element, prefix ~ "background_color_alt") %}
-        {% set backgrounds = backgrounds|merge([attribute(element, prefix ~ "background_color_alt")]) %}
+        {% set backgrounds = backgrounds|merge(["url("~asset(attribute(element.values, prefix ~ "background_image"))~") center center no-repeat"]) %}
+    {% elseif attribute(element.values, prefix ~ "background_color").value and attribute(element.values, prefix ~ "background_color_alt").value %}
+        {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
+    {% elseif attribute(element.values, prefix ~ "background_color").value %}
+        {% set backgrounds = backgrounds|merge([attribute(element.values, prefix ~ "background_color").value]) %}
+    {% elseif attribute(element.values, prefix ~ "background_color_alt").value %}
+        {% set backgrounds = backgrounds|merge([attribute(element.values, prefix ~ "background_color_alt").value]) %}
     {% endif %}
 
     {% if backgrounds %}
@@ -61,38 +60,38 @@
 {% endmacro %}
 
 {% macro img(current_bloc,classes="",html="",params="") %}
-    {% if current_bloc.image_link %}<a href="{{ current_bloc.image_link }}">{% endif %}
-    <img class="{{ classes }}" src="{{ asset(current_bloc.image,params) }}" {{ html }} alt="{{ current_bloc.image.client_name }}">
-    {% if current_bloc.image_link %}</a>{% endif %}
+    {% if current_bloc.values.image_link.value %}<a href="{{ current_bloc.values.image_link.value }}">{% endif %}
+    <img class="{{ classes }}" src="{{ asset(current_bloc.values.image,params) }}" {{ html }} alt="{{ current_bloc.values.image.label }}">
+    {% if current_bloc.values.image_link.value %}</a>{% endif %}
 {% endmacro %}
 
 {% macro header(current_bloc, level = "1",classes="",html="") %}
-     <h{{ level}}  class="{{ current_bloc.classes|join(" ") }} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}"  {{ html }}>{{ current_bloc.title|snl2br|raw }}</h{{ level }}>
+     <h{{ level}}  class="{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}" {{ html }}>{{ current_bloc.values.title.value|snl2br|raw }}</h{{ level }}>
 {% endmacro %}
 
 {% macro button(current_bloc, classes="",html="") %}
-    <div class="{{ current_bloc.button_align }}">
-        <a href="{{ current_bloc.button_link ?: "#" }}" target="{{ current_bloc.button_target ?: "_self" }}" style="{{ _self.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {{ current_bloc.button_classes|join(" ") }} {{ classes }}" {{ html }}>
-            {% if current_bloc.button_logo %}
-                <img src="{{ asset(current_bloc.button_logo) }}" class="me-2">
-            {% elseif current_bloc.button_icon %}
-                <i class="{{ current_bloc.button_icon }} fa-fw me-2"></i>
+    <div class="{{ current_bloc.values.button_align.value }}">
+        <a href="{{ current_bloc.values.button_link.value ?: "#" }}" target="{{ current_bloc.values.button_target.value ?: "_self" }}" style="{{ _self.getStyles(current_bloc, ".valuebutton_")|trim }}" class="mt-5 btn {% for class in current_bloc.values.button_classes %}{{ class.value }} {% endfor %} {{ classes }}" {{ html }}>
+            {% if current_bloc.values.button_logo.value %}
+                <img src="{{ asset(current_bloc.values.button_logo.value) }}" class="me-2">
+            {% elseif current_bloc.values.button_icon.value %}
+                <i class="{{ current_bloc.values.button_icon.value }} fa-fw me-2"></i>
             {% endif %}
-            {{ current_bloc.button_text }}
+            {{ current_bloc.values.button_text.value }}
         </a>
     </div>
 {% endmacro %}
 
 {% macro icon(current_bloc, classes="",html="") %}
-    <div class="{{ current_bloc.icon_classes|join(" ") }} {{ classes }}">
+    <div class="{% for class in current_bloc.values.icon_classes %}{{ class.value }} {% endfor %} {{ classes }}">
         {% set elementAttr = 'class="icon-circle bg-primary text-white" style="'~_self.getStyles(current_bloc, "icon_")|trim~'"' %}
-        {% set elementIcon = '<i class="'~current_bloc.icon_icon~' fa-lg"></i>' %}
-        {% if current_bloc.icon_logo %}
-            {% set elementIcon = '<img src="'~asset(current_bloc.icon_logo)~'" style="width:2.5rem; height:2.5rem; object-fit:contain;">' %}
+        {% set elementIcon = '<i class="'~current_bloc.values.icon_icon.value~' fa-lg"></i>' %}
+        {% if current_bloc.values.icon_logo.value %}
+            {% set elementIcon = '<img src="'~asset(current_bloc.values.icon_logo)~'" style="width:2.5rem; height:2.5rem; object-fit:contain;">' %}
         {% endif %}
 
-        {% if current_bloc.icon_link %}
-            <a href="{{ current_bloc.icon_link }}" target="{{ current_bloc.icon_target }}" {{ elementAttr|raw }}>{{ elementIcon|raw }}</a>
+        {% if current_bloc.values.icon_link.value %}
+            <a href="{{ current_bloc.values.icon_link.value }}" target="{{ current_bloc.values.icon_target.value }}" {{ elementAttr|raw }}>{{ elementIcon|raw }}</a>
         {% else %}
             <span {{ elementAttr|raw }}>{{ elementIcon|raw }}</span>
         {% endif %}
@@ -101,17 +100,17 @@
 
 {% macro label(current_bloc, number, classes="",html="") %}
   <span class="badge rounded-pill" style="{{ _self.getStyles(current_bloc, "label_"~number~"_")|trim }}">
-      {% if attribute(current_bloc,"label_"~number~"_link") %}
-          <a class="h6" href="{{ attribute(current_bloc,"label_"~number~"_link") }}" target="{{ attribute(current_bloc,"label_"~number~"_target") }}" style="color: inherit;">{{ attribute(current_bloc,"label_"~number~"_label") }}</a>
+      {% if attribute(current_bloc.values,"label_"~number~"_link").value %}
+          <a class="h6" href="{{ attribute(current_bloc.values,"label_"~number~"_link").value }}" target="{{ attribute(current_bloc.values,"label_"~number~"_target").Value }}" style="color: inherit;">{{ attribute(current_bloc.values,"label_"~number~"_label").value }}</a>
       {% else %}
-          <span class="h6">{{ attribute(current_bloc,"label_"~number~"_label") }}</span>
+          <span class="h6">{{ attribute(current_bloc.values,"label_"~number~"_label").value }}</span>
       {% endif %}
   </span>
 {% endmacro %}
 
 {% macro files(current_bloc, classes="",html="") %}
     <ul class="list-unstyled py-5 mt-5 border-top {{ classes }}" {{ html }}>
-        {% for file in current_bloc.files %}
+        {% for file in current_bloc.values.files %}
             {% if file.extension == "jpg" or file.extension == "jpeg" or file.extension == "png" or file.extension == "gif" %}
                 {% set icon = "fa-file-image" %}
             {% elseif file.extension == "pdf" %}
@@ -123,40 +122,35 @@
             {% else %}
                 {% set icon = "fa-file" %}
             {% endif %}
-            <li><a href="{{ asset(file) }}" target="_blank"><i class="fad {{ icon }} fa-fw fa-lg"></i> {{ file.client_name }}</a></li>
+            <li><a href="{{ asset(file) }}" target="_blank"><i class="fad {{ icon }} fa-fw fa-lg"></i> {{ file.label }}</a></li>
         {% endfor %}
     </ul>
 {% endmacro %}
-{% macro getEditMode(current_page,config) %}
 
+{% macro getEditMode(current_page,config) %}
     {% if  _session.isEditMode %}
         <link href="{{ asset('assets/backend/editor.css') }}" rel="stylesheet">
         <script type="text/javascript">
             var editor ={ client : "{{ config.api_client }}", slug: '{{ current_page.editor.slug }}', id:'{{ current_page.editor.id }}',section: '{{ current_page.editor.section }}',edited : '{{ current_page.unique  }}' };
         </script>
-        <script defer src="{{ asset('assets/backend/editor.js') }}">
-
-        </script>
+        <script defer src="{{ asset('assets/backend/editor.js') }}"></script>
     {% endif %}
 {% endmacro %}
+
 {% macro getEditableSection(current_section) %}
     {% if  _session.isEditMode %}
-
         data-editor='{"form": "{{ current_section.module.add }}", "module_slug": "{{ current_section.module.slug }}","module_id": "{{ current_section.module.id }}","id":"{{ current_section.unique }}"}'
     {% endif %}
 {% endmacro %}
 
-
 {% macro getEditableBloc(current_bloc) %}
     {% if  _session.isEditMode %}
-
         data-editor='{"module_slug": "{{ current_bloc.module.slug }}","module_id": "{{ current_bloc.module.id }}","id":"{{ current_bloc.unique }}"}'
     {% endif %}
 {% endmacro %}
 
 {% macro getEditable(module,current_bloc) %}
     {% if  _session.isEditMode %}
-
         data-editor='{"module_slug": "{{ module.slug }}","module_id": "{{ module.id }}","id":"{{ current_bloc.unique }}"}'
     {% endif %}
 {% endmacro %}

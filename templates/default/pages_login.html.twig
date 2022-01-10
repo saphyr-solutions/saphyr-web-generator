@@ -12,7 +12,7 @@
                     <h1 class="mb-0 fw-bold text-center">Connexion</h1>
 
                     <!-- Text -->
-                    <p class="mb-6 text-center text-muted">Veuillez vous connecter pour voir la page "<span class="text-primary">{{ current_page.menu }}</span>"</p>
+                    <p class="mb-6 text-center text-muted">Veuillez vous connecter pour voir la page "<span class="text-primary">{{ current_page.values.menu.value }}</span>"</p>
 
                     <!-- Form -->
                     <form method="post" action="/{{ request_uri }}" class="mb-6">

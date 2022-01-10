@@ -1,18 +1,18 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-{% set image = current_bloc.image_alt %}
-{% if not image and current_bloc.image %}
-    {% set image = current_bloc.image %}
+{% set image = current_bloc.values.image_alt.value %}
+{% if not image and current_bloc.values.image.value %}
+    {% set image = current_bloc.values.image.value %}
 {% endif %}
 
-{% set title = current_bloc.title_alt %}
-{% if not title and current_bloc.title %}
-    {% set title = current_bloc.title %}
+{% set title = current_bloc.values.title_alt.value %}
+{% if not title and current_bloc.values.title.value %}
+    {% set title = current_bloc.values.title.value %}
 {% endif %}
 
-{% set text = current_bloc.text_alt %}
-{% if not text and current_bloc.text %}
-    {% set text = current_bloc.text %}
+{% set text = current_bloc.values.text_alt.value %}
+{% if not text and current_bloc.values.text.value %}
+    {% set text = current_bloc.values.text.value %}
 {% endif %}
 
 {% set url = '/' ~ current_bloc.load_from.slug ~ '/' ~ current_bloc.url %}

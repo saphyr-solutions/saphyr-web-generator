@@ -5,32 +5,32 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>{{ current_page.seo_title ? current_page.seo_title ~ " - " : "" }}{{ web.title }}</title>
+    <title>{{ current_page.values.seo_title.value ? current_page.values.seo_title.value ~ " - " : "" }}{{ web.values.title.value }}</title>
 
-    {% if current_page.seo_description %}
-        <meta name="description" content="{{ current_page.seo_description }}">
-    {% endif %}
-
-    {% if current_page.seo_og_title %}
-        <meta property="og:title" content="{{ current_page.seo_og_title }}">
-    {% endif %}
-    {% if current_page.seo_og_description %}
-        <meta property="og:description" content="{{ current_page.seo_og_description }}">
-    {% endif %}
-    {% if current_page.seo_og_type %}
-        <meta property="og:type" content="{{ current_page.seo_og_type }}">
-    {% endif %}
-    {% if current_page.seo_og_image %}
-        <meta property="og:image" content="{{ asset(current_page.seo_og_image) }}">
+    {% if current_page.values.seo_description.value %}
+        <meta name="description" content="{{ current_page.values.seo_description.value }}">
     {% endif %}
 
-    {% if current_page.seo_canonical %}
-        <link rel="canonical" href="{{ current_page.seo_canonical }}">
+    {% if current_page.values.seo_og_title.value %}
+        <meta property="og:title" content="{{ current_page.values.seo_og_title.value }}">
+    {% endif %}
+    {% if current_page.values.seo_og_description.value %}
+        <meta property="og:description" content="{{ current_page.values.seo_og_description.value }}">
+    {% endif %}
+    {% if current_page.values.seo_og_type.value %}
+        <meta property="og:type" content="{{ current_page.values.seo_og_type.value }}">
+    {% endif %}
+    {% if current_page.values.seo_og_image.value %}
+        <meta property="og:image" content="{{ asset(current_page.values.seo_og_image.value) }}">
+    {% endif %}
+
+    {% if current_page.values.seo_canonical.value %}
+        <link rel="canonical" href="{{ current_page.values.seo_canonical.value }}">
     {% endif %}
 
     <!-- Favicons -->
-    {% if web.favicon %}
-        <link href="{{ asset(web.favicon) }}" rel="icon">
+    {% if web.values.favicon.value %}
+        <link href="{{ asset(web.values.favicon) }}" rel="icon">
     {% endif %}
 
     <!-- Template Main CSS File -->
@@ -43,12 +43,12 @@
         .sl-overlay {opacity: 1;}
     </style>
 
-    {% if web.html_header %}
-        {{ web.html_header|raw }}
+    {% if web.values.html_header.value %}
+        {{ web.values.html_header.value|raw }}
     {% endif %}
 
-    {% if current_page.html_header %}
-        {{ current_page.html_header|raw }}
+    {% if current_page.values.html_header.value %}
+        {{ current_page.values.html_header.value|raw }}
     {% endif %}
 </head>
 

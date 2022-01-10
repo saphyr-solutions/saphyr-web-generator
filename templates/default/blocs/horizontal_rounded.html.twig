@@ -1,10 +1,10 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="card card-row shadow-light-lg {{ current_bloc.classes|join(" ") }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
+<div class="card card-row shadow-light-lg {% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
     <div class="row gx-0">
-        <a class="col-12 col-md-6 bg-cover card-img-start" style="background-image: url({{ asset(current_bloc.image) }});" href="{{ current_bloc.image_link ?: "#" }}">
+        <a class="col-12 col-md-6 bg-cover card-img-start" style="background-image: url({{ asset(current_bloc.values.image) }});" href="{{ current_bloc.values.image_link.value ?: "#" }}">
             <!-- Image (placeholder) -->
-            <img class="img-fluid d-md-none invisible" src="{{ asset(current_bloc.image) }}" alt="{{ current_bloc.image.client_name }}">
+            <img class="img-fluid d-md-none invisible" src="{{ asset(current_bloc.values.image) }}" alt="{{ current_bloc.values.image.label }}">
 
             <!-- Shape -->
             <div class="shape shape-end shape-fluid-y text-white d-none d-md-block">
@@ -15,41 +15,41 @@
 
             <!-- Body -->
             <div class="card-body">
-                {% if current_bloc.label_1_label %}
+                {% if current_bloc.values.label_1_label.value %}
                     <div class="position-relative text-start mt-n8 me-n4 mb-3">
-                        {% if current_bloc.label_1_label %}
+                        {% if current_bloc.values.label_1_label.value %}
                             {{ macros.label(current_bloc, 1) }}
                         {% endif %}
-                        {% if current_bloc.label_2_label %}
+                        {% if current_bloc.values.label_2_label.value %}
                             {{ macros.label(current_bloc, 2) }}
                         {% endif %}
-                        {% if current_bloc.label_3_label %}
+                        {% if current_bloc.values.label_3_label.value %}
                             {{ macros.label(current_bloc, 3) }}
                         {% endif %}
                     </div>
                 {% endif %}
 
-                {% if current_bloc.icon_icon or current_bloc.icon_logo %}
+                {% if current_bloc.values.icon_icon.value or current_bloc.values.icon_logo.value %}
                     <div class="mb-5">{{ macros.icon(current_bloc) }}</div>
                 {% endif %}
 
-                {% if current_bloc.title %}
+                {% if current_bloc.values.title.value %}
                     {{ macros.header(current_bloc,2) }}
                 {% endif %}
 
-                {% if current_bloc.text %}
-                    <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">{{ current_bloc.text|snl2br|raw }}</p>
+                {% if current_bloc.values.text.value %}
+                    <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>
                 {% endif %}
 
-                {% if current_bloc.files %}
+                {% if current_bloc.values.files.value %}
                     {{ macros.files(current_bloc) }}
                 {% endif %}
 
-                {% if current_bloc.author %}
-                    <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.author|snl2br|raw }}</p>
+                {% if current_bloc.values.author.value %}
+                    <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</p>
                 {% endif %}
 
-                {% if current_bloc.button_text %}
+                {% if current_bloc.values.button_text.value %}
                     <div class="mt-5">
                         {{ macros.button(current_bloc) }}
                     </div>

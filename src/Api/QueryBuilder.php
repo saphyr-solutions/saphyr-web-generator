@@ -141,7 +141,7 @@ class QueryBuilder
                     $field_infos = array_shift($field_infos);
                     $sort = $orderBy['mode'];
                     foreach ($this->results as $key => $values) {
-                        $value = $values[$field];
+                        $value = $values["values"][$field]["value"];
                         switch ($field_infos['type']) {
                             case 'DateTime':
                                 $value = strtotime($value);

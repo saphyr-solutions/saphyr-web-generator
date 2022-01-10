@@ -85,11 +85,8 @@ class SaphyrWebGenerator
         $this->request_uri = $this->getRequestUri();
         $this->request_page_type = $this->getRequestPageType(true);
 
-
-		if($this->config->editor_mode=='sph22') $_SESSION['isEditMode']=true;
+        if($this->config->editor_mode=='sph22') $_SESSION['isEditMode']=true;
 		if($this->config->editor_mode=='Osph22') $_SESSION['isEditMode']=false;
-
-
     }
 
     /**
@@ -105,9 +102,9 @@ class SaphyrWebGenerator
             if (!$uri) {
                 // find home page uri
                 $all = $this->api->getModuleElements($this->getPageModuleId())["results"];
-                $pages = $this->filterElements($all, $this->getWeb()["pages"]);
+                $pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
                 if (isset($pages[0])) {
-                    $uri = $pages[0]["url"];
+                    $uri = $pages[0]["values"]["url"]["value"];
                 }
             }
 
@@ -242,11 +239,13 @@ class SaphyrWebGenerator
             $pageType = $this->getRequestPageType();
 
             $context = $this->getTwigContext();
+//            dd($context);
             if (!$context["web"]) {
                 return $this->renderError(404);
             }
             if (!$context["current_page"]) {
                 return $this->renderError(404);
+                // TODO si la page n'est pas trouvé, regardé en + si elle existe via l'API
             }
 
             $this->handlePostDatas($context["current_page"]);
@@ -391,11 +390,11 @@ class SaphyrWebGenerator
     private function getMenu()
     {
         $all = $this->api->getModuleElements($this->getPageModuleId())["results"];
-        $pages = $this->filterElements($all, $this->getWeb()["pages"]);
+        $pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
 
         $return = [];
         foreach ($pages as $page) {
-            if ($page["in_menu"]) {
+            if ($page["values"]["in_menu"]["value"]) {
                 $return[] = $page;
             }
         }
@@ -414,10 +413,10 @@ class SaphyrWebGenerator
 
         if ($this->getRequestPageType() === "pages") {
             $all = $this->api->getModuleElements($this->getPageModuleId())["results"];
-            $all = $this->filterElements($all, $this->getWeb()["pages"]);
+            $all = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
 
             foreach ($all as $item) {
-                if ($item["url"] === $this->getRequestUri()) {
+                if ($item["values"]["url"]["value"] === $this->getRequestUri()) {
                     $return = $item;
                     break;
                 }
@@ -437,6 +436,7 @@ class SaphyrWebGenerator
                 }
             }
         }
+
 		$module = $this->api->getModuleInfos($this->getPageModuleId());
 		$config = $this->api->getModuleElementField($this->getPageModuleId(), 'sections');
 
@@ -456,8 +456,7 @@ class SaphyrWebGenerator
     private function getCurrentPageSections(array $currentPage)
     {
         $all = $this->api->getModuleElements($this->getSectionModuleId())["results"];
-
-        $return = $this->filterElements($all, $currentPage["sections"]);
+        $return = $this->filterElements($all, $currentPage["values"]["sections"]);
 
 		$module = $this->api->getModuleInfos($this->getSectionModuleId());
 		$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
@@ -479,28 +478,30 @@ class SaphyrWebGenerator
     private function getCurrentPageSectionBlocs(array $section)
     {
         $all = $this->api->getModuleElements($this->getBlocModuleId())["results"];
-        $return = $this->filterElements($all, $section["blocs"]);
+        $return = $this->filterElements($all, $section["values"]["blocs"]);
 
-		$module = $this->api->getModuleInfos($this->getBlocModuleId());
+        $module = $this->api->getModuleInfos($this->getBlocModuleId());
 		$moduleSection = $this->api->getModuleInfos($this->getSectionModuleId());
 		$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
+
 		foreach ($return as $key => $bloc) {
-            if ($bloc["load_from"]) {
-				$moduleSrcID =$bloc["load_from"];
-                $bloc["load_from"] = $this->api->getModuleInfos($bloc["load_from"]);
+            if ($bloc["values"]["load_from"]["value"]) {
+				$moduleSrcID = $bloc["values"]["load_from"]["value"];
+                $bloc["load_from"] = $this->api->getModuleInfos($bloc["values"]["load_from"]["value"]);
                 $confToLoad = [
                     'module' => $bloc["load_from"]["id"],
                     'filter' => []
                 ];
-                if ($bloc["load_order"]) {
+                if ($bloc["values"]["load_order"]["value"]) {
                     $confToLoad["order"] = [
-                        [$bloc["load_order"], $bloc["load_order_dir"] ?: "asc"]
+                        [$bloc["values"]["load_order"]["value"], $bloc["values"]["load_order_dir"]["value"] ?: "asc"]
                     ];
                 }
-                if ($bloc["load_limit"]) {
-                    $confToLoad["limit"] = [0, $bloc["load_limit"]];
+                if ($bloc["values"]["load_limit"]["value"]) {
+                    $confToLoad["limit"] = [0, $bloc["values"]["load_limit"]["value"]];
                 }
                 $datasToLoad = $this->api->getItems($confToLoad);
+                dd($datasToLoad);
                 $datasToLoad = array_map(function ($item) use ($bloc) {
                     return array_merge($bloc, $item);
                 }, $datasToLoad);
@@ -520,7 +521,6 @@ class SaphyrWebGenerator
             } else {
 				$return[$key]['section']=['slug' =>$moduleSection['slug'],'id' =>$this->getSectionModuleId(),'unique' => $section['unique'],'add' => $config?$config['id']:''];
 				$return[$key]['module']=['slug' =>$module['slug'],'id' =>$module['id']];
-
 			}
         }
         return $return;
@@ -536,7 +536,7 @@ class SaphyrWebGenerator
         $menu = $this->getMenu();
         $currentPage = $this->getCurrentPage();
 
-		$moduleId = $this->getRequestPageModuleId();
+        $moduleId = $this->getRequestPageModuleId();
 		$module = $this->api->getModuleInfos($moduleId);
         return [
             "web" => $web,
@@ -586,27 +586,36 @@ class SaphyrWebGenerator
             $uniques = [$uniques];
         }
 
+        if (is_array($uniques) && isset($uniques[0]["value"])) {
+            // Is array of object. Trasnform it to array of uniques
+            $tmp = [];
+            foreach ($uniques as $unique) {
+                $tmp[] = $unique["value"];
+            }
+            $uniques = $tmp;
+        }
+
         $return = [];
         foreach ($elements as $element) {
             if ($uniques !== false && !in_array($element["unique"], $uniques)) {
                 continue;
             }
-            if (isset($element["status"]) && $element["status"] != "online") {
+            if (isset($element["values"]["status"]["value"]) && $element["values"]["status"]["value"] != "online") {
                 continue;
             }
-            if (isset($element["web"])) {
-                if (is_array($element["web"])) {
-                    if (!in_array($this->getWeb()["unique"], $element["web"])) {
-                        continue;
-                    }
-                } else {
-                    if ($element["web"] != $this->getWeb()["unique"]) {
-                        continue;
-                    }
+            if (isset($element["values"]["web"])) {
+                $tmp = [];
+
+                foreach ($element["values"]["web"] as $value) {
+                    $tmp[] = $value["value"];
+                }
+
+                if (!in_array($this->getWeb()["unique"], $tmp)) {
+                    continue;
                 }
             }
-            if (isset($element["publication_date"])) {
-                $publication = strtotime($element["publication_date"]);
+            if (isset($element["values"]["publication_date"]["value"])) {
+                $publication = strtotime($element["values"]["publication_date"]["value"]);
                 if ($publication > time()) {
                     continue;
                 }

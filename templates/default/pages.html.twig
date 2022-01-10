@@ -5,7 +5,7 @@
 
     <section id="main">
         {% for section in current_page.sections %}
-            {{ include('sections/' ~ section.columns ~ '.html.twig', {current_section: section}, with_context = true) }}
+            {{ include('sections/' ~ section.values.columns.value ~ '.html.twig', {current_section: section}, with_context = true) }}
         {% endfor %}
     </section>
 

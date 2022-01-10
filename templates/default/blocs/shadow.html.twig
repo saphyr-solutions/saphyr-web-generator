@@ -1,45 +1,45 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="{{ current_bloc.classes|join(" ") }} h-100 shadow-lg p-8 rounded-3 bg-white" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
-    {% if current_bloc.image %}
+<div class="{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %} h-100 shadow-lg p-8 rounded-3 bg-white" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
+    {% if current_bloc.values.image.value %}
         {{ macros.img(current_bloc, "img-fluid w-100 rounded mb-4") }}
     {% endif %}
 
-    {% if current_bloc.label_1_label %}
+    {% if current_bloc.values.label_1_label.value %}
         <div class="position-relative text-start mb-3">
-            {% if current_bloc.label_1_label %}
+            {% if current_bloc.values.label_1_label.value %}
                 {{ macros.label(current_bloc, 1) }}
             {% endif %}
-            {% if current_bloc.label_2_label %}
+            {% if current_bloc.values.label_2_label.value %}
                 {{ macros.label(current_bloc, 2) }}
             {% endif %}
-            {% if current_bloc.label_3_label %}
+            {% if current_bloc.values.label_3_label.value %}
                 {{ macros.label(current_bloc, 3) }}
             {% endif %}
         </div>
     {% endif %}
 
-    {% if current_bloc.icon_icon or current_bloc.icon_logo %}
+    {% if current_bloc.values.icon_icon.value or current_bloc.values.icon_logo.value %}
         <div class="mb-5">{{ macros.icon(current_bloc) }}</div>
     {% endif %}
 
-    {% if current_bloc.title %}
+    {% if current_bloc.values.title.value %}
         {{ macros.header(current_bloc, "3"," mb-5 ") }}
     {% endif %}
 
-    {% if current_bloc.text %}
-        <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="text-muted">{{ current_bloc.text|snl2br|raw }}</p>
+    {% if current_bloc.values.text.value %}
+        <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="text-muted">{{ current_bloc.values.text.value|snl2br|raw }}</p>
     {% endif %}
 
-    {% if current_bloc.files %}
+    {% if current_bloc.values.files.value %}
         {{ macros.files(current_bloc) }}
     {% endif %}
 
-    {% if current_bloc.author %}
-        <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.author|snl2br|raw }}</p>
+    {% if current_bloc.values.author.value %}
+        <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</p>
     {% endif %}
 
-    {% if current_bloc.button_text %}
+    {% if current_bloc.values.button_text.value %}
         <div class="mt-5">
             {{ macros.button(current_bloc) }}
         </div>
