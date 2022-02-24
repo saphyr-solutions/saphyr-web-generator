@@ -1,0 +1,46 @@
+{% macro buildField(field) %}
+
+    <div class="field form-floating mb-3">
+
+
+
+    {% if field.type == "Text" %}
+        <input  class="form-control" {{ field.isRequired ? "required='required'" :'' }} type="text" name="{{ field.name }}" id="{{ field.label }}" />
+    {% elseif field.type == "Mail" %}
+        <input class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="email" name="{{ field.name }}" id="{{ field.label }}" />
+    {% elseif field.type == "Number" %}
+        <input  class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="number" name="{{ field.name }}" id="{{ field.label }}" />
+    {% elseif field.type == "Url" %}
+        <input  class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="url" name="{{ field.name }}" id="{{ field.label }}" />
+    {% elseif field.type == "Longtext" %}
+        <textarea rows="10" style="min-height:120px" class="form-control" {{ field.isRequired ? "required='required'" :'' }} name="{{ field.name }}" id="{{ field.label }}"></textarea>
+    {% elseif field.type == "Radio" %}
+        {% set nbOptions = field.options|length %}
+        {% for options in field.options %}
+<div class="form-check">
+            <input  class="form-check-input" {{ field.isRequired ? "required='required'" }} type="radio" name="{{ field.name }}" id="{{ field.label }}{{ loop.index }}" value="{{ options.value }}"/>
+    <label class="form-check-label" for="{{ field.label }}{{ loop.index }}">{{ options.label ? options.label : field.label }}</label>
+</div>
+
+        {% endfor %}
+
+    {% elseif field.type == "Select" %}
+        <select class="form-select" {{ field.isRequired ? "required='required'" :'' }} name="{{ field.name }}" id="{{ field.label }}">
+            <option></option>
+            {% for option in field.options %}
+            <option value="{{ option.value }}">{{ option.label }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        {% if field.type != "Radio" %}
+        <label   for="{{ field.name }}">{{ field.placeholder ? field.placeholder : field.label }}</label>
+        {% endif %}
+{#<pre>{{ dump(field) }}</pre>#}
+    </div>
+{% endmacro %}
+
+{% macro sendButton(form) %}
+    <div class="field mb-3 text-end">
+        <button class="btn btn-success" type="submit">{{ form.button_label ? form.button_label|raw : "Valider" }}</button>
+    </div>
+{% endmacro %}

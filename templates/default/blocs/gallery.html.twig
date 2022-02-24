@@ -1,6 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<a data-gallery class="card card-flush mb-7 {% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200" href="{{ asset(current_bloc.values.image) }}">
+<a data-gallery class="card card-flush mb-7 {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200" href="{{ asset(current_bloc.values.image) }}">
     <!-- Image -->
     <div class="card-zoom">
         <img src="{{ asset(current_bloc.values.image) }}" title="{{ current_bloc.values.title.value }}" class="card-img-top rounded shadow-light-lg">

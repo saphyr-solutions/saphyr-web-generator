@@ -1,9 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
-{#{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% if current_bloc.values.css_addons.value %} {{ current_bloc.values.css_addons.value  }}{% endif %}#}
+
 <div class="{{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
-    {% if current_bloc.values.image.value %}
-        {{ macros.img(current_bloc, "img-fluid") }}
-    {% endif %}
 
     {% if current_bloc.values.label_1_label.value %}
         <div class="position-relative text-start mb-3">
@@ -27,10 +24,13 @@
         {{ macros.header(current_bloc,2,'','',0) }}
     {% endif %}
 
+{#    {% if current_bloc.values.text.value %}#}
+{#        <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
+{#    {% endif %}#}
     {% if current_bloc.values.text.value %}
         {% if isHTML(current_bloc.values.text.value) %}
 
-            {{ current_bloc.values.text.value|raw }}
+            {{ current_bloc.values.text.value|snl2br|raw }}
 
         {% else %}
             <p class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
@@ -38,9 +38,23 @@
             </p>
         {% endif %}
     {% endif %}
-{#    {% if current_bloc.values.text.value %}#}
-{#        <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
-{#    {% endif %}#}
+
+
+    <div class="row boutons">
+        <div class="col text-start">
+    {% if current_bloc.values.image.value %}
+
+        {{ macros.img(current_bloc, "img-fluid") }}
+
+    {% endif %}
+
+    {% if current_bloc.values.image2.value %}
+
+        {{ macros.img2(current_bloc, "img-fluid") }}
+
+    {% endif %}
+        </div>
+    </div>
 
     {% if current_bloc.values.files %}
         {{ macros.files(current_bloc) }}

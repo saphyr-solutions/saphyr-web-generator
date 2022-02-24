@@ -1,0 +1,7 @@
+{% import "/macros/tool.html.twig" as macros %}
+
+<div class="{{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
+    {% if current_bloc.values.image.value %}
+        {{ macros.img(current_bloc, "img-fluid") }}
+    {% endif %}
+</div>

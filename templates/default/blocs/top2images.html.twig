@@ -1,13 +1,9 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div class="py-10 pt-md-14 top {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}">
+<div class="py-10 pt-md-14 top {{ macros.getBlocClasses(current_bloc) }}"  style="{{ macros.getStyles(current_bloc, "")|trim }}">
     <div {{ macros.getEditableBloc(current_bloc) }} class="row align-items-center">
-        {% if current_bloc.values.image.value %}
-        <div class="col-12 col-md-5 col-lg-6 order-md-2">
-                {{ macros.img(current_bloc, "img-fluid mb-6 mb-md-0 aos-init aos-animate", 'data-aos="fade-up" data-aos-delay="100"') }}
-        </div>
-        {% endif %}
         <div class="col-12 col-md-7 col-lg-6 order-md-1 aos-init aos-animate" data-aos="fade-up">
+
             <!-- Label -->
             {% if current_bloc.values.label_1_label.value %}
                 <div class="position-relative text-start mb-3">
@@ -30,14 +26,14 @@
 
             <!-- Headers -->
             {% if current_bloc.values.title.value %}
-                {{ macros.header(current_bloc, "1","text-center text-md-start ") }}
+                {{ macros.header(current_bloc, "1"," display-3 text-center text-md-start ") }}
             {% endif %}
 
             <!-- Text -->
             {% if current_bloc.values.text.value %}
                 {% if isHTML(current_bloc.values.text.value) %}
 
-                    {{ current_bloc.values.text.value|snl2br|raw }}
+                        {{ current_bloc.values.text.value|snl2br|raw }}
 
                 {% else %}
                     <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
@@ -45,10 +41,14 @@
                     </p>
                 {% endif %}
             {% endif %}
-{#            {% if current_bloc.values.text.value %}#}
-{#                <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
-{#            {% endif %}#}
 
+            {% if current_bloc.values.image.value %}
+                <p class="text-center text-md-start pb-5">{{ macros.img(current_bloc, "img-fluid mb-6 mb-md-0 aos-init aos-animate", 'data-aos="fade-up" data-aos-delay="100"') }}</p>
+            {% endif %}
+
+            {% if current_bloc.values.image2.value %}
+                <p class="text-center text-md-start pb-5">{{ macros.img2(current_bloc, "img-fluid mb-6 mb-md-0 aos-init aos-animate", 'data-aos="fade-up" data-aos-delay="100"') }}</p>
+            {% endif %}
             {% if current_bloc.values.files %}
                 {{ macros.files(current_bloc) }}
             {% endif %}

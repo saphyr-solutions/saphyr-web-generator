@@ -223,6 +223,27 @@ class SaphyrWebGenerator
         return $this->bloc_module_id;
     }
 
+	public function handleXHR() {
+		if($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST)) {
+			$datas = $_POST;
+			if (isset($datas['form']) && isset($datas['formId'])) {
+				$formModule = $this->api->getModuleInfos($datas['form']);
+				$module_forms = array_filter($formModule['module_forms'],function($e) use($datas) {
+					return $e['id']==$datas['formId'];
+				});
+				if($module_forms) {
+					$module_forms = array_shift($module_forms);
+					unset($module_forms['config']);
+					$formConfig = $this->api->getModuleElementformConfigFields($datas['form'], $datas['formId']);
+					$result = $this->api->addElement($datas['form'], $datas);
+					$return = ['result' => $result ? 'success':'error'];
+					$return = array_merge($return, $module_forms);
+					echo json_encode($return);
+					exit();
+				}
+			}
+		}
+	}
     /**
      * Load and return current page
      *
@@ -231,6 +252,7 @@ class SaphyrWebGenerator
     public function render()
     {
         try {
+			$this->handleXHR();
             $this->redirectHttpsWww();
 
             $this->compilScss();
@@ -321,6 +343,10 @@ class SaphyrWebGenerator
                 $this->reload(["errors" => ["password" => "no_allowed"]]);
             }
         }
+		if(isset($datas['form']) && isset($datas['formId'])) {
+			$this->api->addElement($datas['form'], $datas);
+			$this->reload();
+		}
     }
 
     /**
@@ -484,6 +510,53 @@ class SaphyrWebGenerator
 		$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
 
 		foreach ($return as $key => $bloc) {
+			if($bloc['values']['formId']['value']) {
+				$return[$key]['values']['type']['value']='form';
+				$vals = explode('|',$bloc['values']['formId']['value']);
+				if($vals && count($vals)==2) {
+					$miniFormId=$vals[1];
+					$formModule = $this->api->getModuleInfos($vals[0]);
+					$formConfig = $this->api->getModuleElementformConfigFields($vals[0],$vals[1]);
+					if(isset($formConfig['components'])) {
+						// Rewrite des datas reçues
+
+						$component = array_filter($formConfig['components'],function($e) { return $e['type']=='Panel';});
+						if($component) {
+							$component = array_shift($component);
+
+							$module_forms = array_filter($formModule['module_forms'],function($e) use($miniFormId) {
+								return $e['id']==$miniFormId;
+							});
+							if($module_forms) {
+								$module_forms = array_shift($module_forms);
+								unset($module_forms['config']);
+							}
+
+							$formDatas =
+							array_merge($module_forms,
+								[
+									'submitButtonLabel' => $formConfig['submitButtonLabel'],
+									'moduleId' => $vals[0],'miniFormId' => $vals[1],'action' => $formConfig['action'],'method' => $formConfig['method']]);
+
+							$fields = array_filter($component['components'],function($e) { return $e['type']=='Tabs';});
+
+							if($fields) {
+
+								$fields = array_shift($fields);
+								$fields = array_filter($fields['components'],function($e) { return $e['type']=='Tab';});
+
+
+								$formDatas['slug'] =$fields[0]['slug'];
+								$formDatas['fields']=$fields[0]['components'];
+								$return[$key]['form']=$formDatas;
+
+							}
+						}
+					}
+				}
+
+			}
+
             if ($bloc["values"]["load_from"]["value"]) {
 				$moduleSrcID = $bloc["values"]["load_from"]["value"];
                 $bloc["load_from"] = $this->api->getModuleInfos($bloc["values"]["load_from"]["value"]);

@@ -1,7 +1,16 @@
 {% macro buildSection(current_section) %}
-    <div style="{{ _self.getStyles(current_section, "")|trim }}">
+    <div class="s_{{ current_section.unique }} {{ current_section.label ? 's_' ~ current_section.label : ''}}" id="section_{{ current_section.label ? current_section.label : current_section.unique}}" style="{{ _self.getStyles(current_section, "")|trim }}">
         <div {{ _self.getEditableSection(current_section) }} class="{% for class in current_section.values.classes %}{{ class.value }} {% endfor %}">
-            <div class="row gy-5">
+
+            {% set rowClass = '' %}
+            {% if current_section.values.bloc_align %}
+
+                {% for class in current_section.values.bloc_align %}
+
+                    {% set rowClass = rowClass ~ " " ~ class.value %}
+                {% endfor %}
+            {% endif %}
+            <div class="row gy-5 rs_{{ current_section.unique }} {{ rowClass }}">
                 {% set columns = current_section.values.columns.value %}
                 {% if columns == "col-3_col-3_col-3_col-3" %}
                     {% set columns = "col-sm-6 col-lg-3_col-sm-6 col-lg-3_col-sm-6 col-lg-3_col-md-3" %}
@@ -10,7 +19,6 @@
                 {% else %}
                     {% set columns = columns|replace({"col-": "col-md-"}) %}
                 {% endif %}
-
                 {% set columnsClasses = columns|split("_") %}
                 {% for key, current_bloc in current_section.blocs %}
                     {% set newColumn = not current_bloc.values.same_column[0].value %}
@@ -18,8 +26,10 @@
                     {% set keyToSearch = key % columnsClasses|length %}
                     {% set columnClass = columnsClasses[keyToSearch] %}
 
-                    {% if newColumn %}<div class="{{ columnClass }}">{% endif %}
-                    {{ include('blocs/' ~ current_bloc.values.type.value ~ '.html.twig', {current_bloc: current_bloc}, with_context = true) }}
+
+
+                    {% if newColumn %}<div class="{{ columnClass }} {{ current_bloc.values.col_classes.value ? " " ~ current_bloc.values.col_classes.value ~" "}} {{ current_bloc.values.slug.value ? "b_" ~ current_bloc.values.slug.value : ''}}">{% endif %}
+                        {{ include('blocs/' ~ current_bloc.values.type.value ~ '.html.twig', {current_bloc: current_bloc,current_section:current_section}, with_context = true) }}
                     {% if closeColumn %}</div>{% endif %}
                 {% endfor %}
             </div>
@@ -53,25 +63,31 @@
     {% endif %}
 
     {% if backgrounds %}
-        {% set styles = styles|merge(["background:" ~ backgrounds|join(", ") ~ "!important", "background-repeat: no-repeat!important", "background-size: cover!important"]) %}
+        {% set styles = styles|merge(["background:" ~ backgrounds|join(", ") ~ "", "background-repeat: no-repeat", "background-size: cover"]) %}
     {% endif %}
 
     {{ styles|join("; ") }}
 {% endmacro %}
 
-{% macro img(current_bloc,classes="",html="",params="") %}
-    {% if current_bloc.values.image_link.value %}<a href="{{ current_bloc.values.image_link.value }}">{% endif %}
-    <img class="{{ classes }}" src="{{ asset(current_bloc.values.image,params) }}" {{ html }} alt="{{ current_bloc.values.image.label }}">
+{% macro img(current_bloc,classes="",html="",params="",maxwidth="") %}
+    {% if current_bloc.values.image_link.value %}<a target="_blank" href="{{ current_bloc.values.image_link.value }}">{% endif %}
+    <img class="{{ classes }}" {% if current_bloc.values.image_max_width.value  %}style="max-width:{{ current_bloc.values.image_max_width.value }}px"{% endif %} src="{{ asset(current_bloc.values.image,params) }}" {{ html }} alt=" {{ current_bloc.values.image.label }}">
     {% if current_bloc.values.image_link.value %}</a>{% endif %}
 {% endmacro %}
 
-{% macro header(current_bloc, level = "1",classes="",html="") %}
-     <h{{ level}}  class="{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}" {{ html }}>{{ current_bloc.values.title.value|snl2br|raw }}</h{{ level }}>
+{% macro img2(current_bloc,classes="",html="",params="",maxwidth="") %}
+    {% if current_bloc.values.image2_link.value %}<a target="_blank" href="{{ current_bloc.values.image2_link.value }}">{% endif %}
+    <img class="{{ classes }}" {% if current_bloc.values.image2_max_width.value  %}style="max-width:{{ current_bloc.values.image2_max_width.value }}px"{% endif %} src="{{ asset(current_bloc.values.image2,params) }}" {{ html }} alt=" {{ current_bloc.values.image2.label }}">
+    {% if current_bloc.values.image_link.value %}</a>{% endif %}
+{% endmacro %}
+
+{% macro header(current_bloc, level = "1",classes="",html="",addClasses="1") %}
+     <h{{ level}}  class="{% if addClasses %}{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% endif%} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}" {{ html }}>{{ current_bloc.values.title.value|snl2br|raw }}</h{{ level }}>
 {% endmacro %}
 
 {% macro button(current_bloc, classes="",html="") %}
     <div class="{{ current_bloc.values.button_align.value }}">
-        <a href="{{ current_bloc.values.button_link.value ?: "#" }}" target="{{ current_bloc.values.button_target.value ?: "_self" }}" style="{{ _self.getStyles(current_bloc, ".valuebutton_")|trim }}" class="mt-5 btn {% for class in current_bloc.values.button_classes %}{{ class.value }} {% endfor %} {{ classes }}" {{ html }}>
+        <a href="{{ current_bloc.values.button_link.value ?: "#" }}" target="{{ current_bloc.values.button_target.value ?: "_self" }}" style="{{ _self.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {% for class in current_bloc.values.button_classes %}{{ class.value }} {% endfor %} {{ classes }}{% if current_bloc.values.button_custom_classes.value %} {{ current_bloc.values.button_custom_classes.value }}{% endif %}" {{ html }}>
             {% if current_bloc.values.button_logo.value %}
                 <img src="{{ asset(current_bloc.values.button_logo.value) }}" class="me-2">
             {% elseif current_bloc.values.button_icon.value %}
@@ -127,6 +143,10 @@
     </ul>
 {% endmacro %}
 
+
+{% macro getBlocClasses(current_bloc) %}
+{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% if current_bloc.values.css_addons.value %} {{ current_bloc.values.css_addons.value  }}{% endif %}
+{% endmacro %}
 {% macro getEditMode(current_page,config) %}
     {% if  _session.isEditMode %}
         <link href="{{ asset('assets/backend/editor.css') }}" rel="stylesheet">

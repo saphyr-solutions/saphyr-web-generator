@@ -1,6 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div  {{ macros.getEditableBloc(current_bloc) }} class="{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %} card shadow-light-lg lift lift-lg h-100" style="{{ macros.getStyles(current_bloc, "")|trim }}"  ddata-aos="fade-up" data-aos-delay="200">
+<div  {{ macros.getEditableBloc(current_bloc) }} class="card shadow-light-lg lift lift-lg h-100 {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}"  ddata-aos="fade-up" data-aos-delay="200">
     <!-- Image -->
     {% if current_bloc.values.image.value %}
         {{ macros.img(current_bloc, "card-img-top") }}
@@ -38,7 +38,14 @@
         {% endif %}
 
         {% if current_bloc.values.text.value %}
+{#            <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
+        {% if isHTML(current_bloc.values.text.value) %}
+
+            {{ current_bloc.values.text.value|raw }}
+
+        {% else %}
             <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>
+            {% endif %}
         {% endif %}
 
         {% if current_bloc.values.files %}

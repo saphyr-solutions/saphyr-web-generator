@@ -21,10 +21,12 @@
 <div {{ macros.getEditableBloc(current_bloc) }} class="card mb-6 mb-lg-0 shadow-light-lg lift lift-lg h-100" data-aos="fade-up" data-aos-delay="200">
 
     <!-- Image -->
-    {% if image %}
+
+
+    {% if current_bloc.values.image.value %}
         <a class="card-img-top" href="{{ url }}">
             <!-- Image -->
-            <img src="{{ asset(image) }}" alt="{{ image.client_name }}" class="card-img-top">
+            {{ macros.img(current_bloc, "img-fluid mb-6 mb-md-0 aos-init aos-animate", 'data-aos="fade-up" data-aos-delay="100"',{width:320}) }}
 
             <!-- Shape -->
             <div class="position-relative">

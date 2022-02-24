@@ -1,6 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
-{#{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% if current_bloc.values.css_addons.value %} {{ current_bloc.values.css_addons.value  }}{% endif %}#}
-<div class="{{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
+
+<div class="encart {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
     {% if current_bloc.values.image.value %}
         {{ macros.img(current_bloc, "img-fluid") }}
     {% endif %}
@@ -24,13 +24,17 @@
     {% endif %}
 
     {% if current_bloc.values.title.value %}
-        {{ macros.header(current_bloc,2,'','',0) }}
+        {{ macros.header(current_bloc,2) }}
     {% endif %}
+
+{#    {% if current_bloc.values.text.value %}#}
+{#        <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
+{#    {% endif %}#}
 
     {% if current_bloc.values.text.value %}
         {% if isHTML(current_bloc.values.text.value) %}
 
-            {{ current_bloc.values.text.value|raw }}
+            {{ current_bloc.values.text.value|snl2br|raw }}
 
         {% else %}
             <p class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
@@ -38,9 +42,6 @@
             </p>
         {% endif %}
     {% endif %}
-{#    {% if current_bloc.values.text.value %}#}
-{#        <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
-{#    {% endif %}#}
 
     {% if current_bloc.values.files %}
         {{ macros.files(current_bloc) }}

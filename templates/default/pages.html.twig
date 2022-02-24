@@ -1,13 +1,18 @@
 {% extends "_html.html.twig" %}
 
+{% block bodyClasses %}p_{{ current_page.values.url.value and current_page.values.url.value != '/' ? current_page.values.url.value : 'home' }}{% endblock %}
 {% block content %}
+
     {% include 'includes/nav.html.twig' %}
 
-    <section id="main">
+
+    <section id="main" class="flex-shrink-0">
         {% for section in current_page.sections %}
-            {{ include('sections/' ~ section.values.columns.value ~ '.html.twig', {current_section: section}, with_context = true) }}
+{#            <pre>{{  dump(section) }}</pre>#}
+                {{ include('sections/' ~ section.values.columns.value ~ '.html.twig', {current_section: section}, with_context = true) }}
         {% endfor %}
     </section>
+
 
     {% include 'includes/footer.html.twig' %}
 {% endblock %}
