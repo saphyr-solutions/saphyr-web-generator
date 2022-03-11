@@ -278,6 +278,7 @@ class Api
 			$result = $this->getFromCache($file);
 			if (is_array($result)) {
 				return array_filter($result, function ($e) {
+					if(!isset($e['type'])) return true;
 					return !in_array($e['type'], ['Tab', 'Tabs']);
 				});
 			}
@@ -343,15 +344,36 @@ class Api
 			}
 
 		}
+		$webp=false;
+		$uri= $this->webRoot . '__SC__' . $array['id'] . $extra_storage . '_' . $array['server_name'];
 		$path = $this->tempStorage . '__SC__' . $array['id'] . $extra_storage . '_' . $array['server_name'];
+		if(in_array($array['extension'],['png','jpg','jpeg'])) {
+			$webp=true;
+			$params['webp']=1;
 
-		if (strtotime($array['modification_date']) > time() + $this->ttl) {
+
+		}
+		if($webp) {
+			$path=str_replace('.'.$array['extension'],'.webp',$path);
+			$uri = str_replace('.'.$array['extension'],'.webp',$path);
+		}
+
+
+		if (isset($array['modification_date']) && strtotime($array['modification_date']) > time() + $this->ttl) {
 			@unlink($path);
 		}
 
 		if (!file_exists($path)) {
 			try {
 				$result = $this->call('/api/v1/file/' . $array['id'], 'GET', $params);
+				if($webp && !$result) {
+					// Fallback si le webp n'est pas trouvé
+					unset($params['webp']);
+					$result = $this->call('/api/v1/file/' . $array['id'], 'GET', $params);
+					$uri= $this->webRoot . '__SC__' . $array['id'] . $extra_storage . '_' . $array['server_name'];
+					$path = $this->tempStorage . '__SC__' . $array['id'] . $extra_storage . '_' . $array['server_name'];
+
+				}
 				$file = fopen($path, "wb");
 				fwrite($file, $result);
 				fclose($file);
@@ -360,7 +382,7 @@ class Api
 			}
 		}
 
-		return $this->webRoot . '__SC__' . $array['id'] . $extra_storage . '_' . $array['server_name'];
+		return $uri;
 	}
 
 	public function deleteElement($moduleId, $uniqueId)
@@ -417,8 +439,6 @@ class Api
 				@unlink($file);
 			}
 
-//			$compressed = gzcompress($str, 9);
-//			$uncompressed = gzuncompress($compressed);
 			$tempfile = $path . uniqid(rand(), true);
 			file_put_contents($tempfile, json_encode($content), LOCK_EX);
 			@unlink($path);

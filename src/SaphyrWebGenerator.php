@@ -64,13 +64,16 @@ class SaphyrWebGenerator
     {
         session_start();
         $this->config = $config;
+		if($this->config->editor_mode=='sph22') $_SESSION['isEditMode']=true;
+		if($this->config->editor_mode=='Osph22') $_SESSION['isEditMode']=false;
+
         $this->api = new Api([
             'client' => $config->api_client,
             'pubKey' => $config->api_public_key,
             'privKey' => $config->api_private_key,
             'user' => $config->api_user_login,
             'secret' => $config->api_user_secret,
-            'ttl' => $_SESSION['isEditMote']?0:$config->api_ttl,
+            'ttl' => isset($_SESSION['isEditMote'])&&$_SESSION['isEditMote']?0:$config->api_ttl,
             'debug' => $config->api_debug,
             'tempStorage' => $config->api_temp_storage,
             'webRoot' => $config->api_temp_storage
@@ -85,8 +88,6 @@ class SaphyrWebGenerator
         $this->request_uri = $this->getRequestUri();
         $this->request_page_type = $this->getRequestPageType(true);
 
-        if($this->config->editor_mode=='sph22') $_SESSION['isEditMode']=true;
-		if($this->config->editor_mode=='Osph22') $_SESSION['isEditMode']=false;
     }
 
     /**
@@ -169,10 +170,12 @@ class SaphyrWebGenerator
     {
         if ($fromApi) {
             foreach ($this->api->getModuleElementFields($this->config->web_module_id)["results"] as $moduleElementField) {
+				if(is_array($moduleElementField) && isset($moduleElementField['config']) && isset($moduleElementField['config']['reference'])) {
                 if ($moduleElementField["config"]["reference"] === "pages") {
                     $this->page_module_id = (int)$moduleElementField["config"]["linkedModuleId"];
                     break;
                 }
+            }
             }
             if (!$this->page_module_id) {
                 throw new \Exception("page_module_id not found", 500);
@@ -190,10 +193,12 @@ class SaphyrWebGenerator
     {
         if ($fromApi) {
             foreach ($this->api->getModuleElementFields($this->getPageModuleId())["results"] as $moduleElementField) {
+				if(is_array($moduleElementField) && isset($moduleElementField['config']) && isset($moduleElementField['config']['reference'])) {
                 if ($moduleElementField["config"]["reference"] === "sections") {
                     $this->section_module_id = (int)$moduleElementField["config"]["linkedModuleId"];
                     break;
                 }
+            }
             }
             if (!$this->section_module_id) {
                 throw new \Exception("section_module_id not found", 500);
@@ -211,10 +216,12 @@ class SaphyrWebGenerator
     {
         if ($fromApi) {
             foreach ($this->api->getModuleElementFields($this->getSectionModuleId())["results"] as $moduleElementField) {
+				if(is_array($moduleElementField) && isset($moduleElementField['config']) && isset($moduleElementField['config']['reference'])) {
                 if ($moduleElementField["config"]["reference"] === "blocs") {
                     $this->bloc_module_id = (int)$moduleElementField["config"]["linkedModuleId"];
                     break;
-                }
+                }}
+
             }
             if (!$this->bloc_module_id) {
                 throw new \Exception("bloc_module_id not found", 500);
@@ -540,13 +547,12 @@ class SaphyrWebGenerator
 
 							$fields = array_filter($component['components'],function($e) { return $e['type']=='Tabs';});
 
-							if($fields) {
+							if($fields && is_array($fields)) {
 
 								$fields = array_shift($fields);
 								$fields = array_filter($fields['components'],function($e) { return $e['type']=='Tab';});
 
-
-								$formDatas['slug'] =$fields[0]['slug'];
+								$formDatas['slug'] =isset($fields[0]['slug'])?$fields[0]['slug']:null;
 								$formDatas['fields']=$fields[0]['components'];
 								$return[$key]['form']=$formDatas;
 
