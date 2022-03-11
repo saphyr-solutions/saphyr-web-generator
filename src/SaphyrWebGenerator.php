@@ -424,13 +424,51 @@ class SaphyrWebGenerator
         $all = $this->api->getModuleElements($this->getPageModuleId())["results"];
         $pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
 
+		$return = null;
+		if($pages && count($pages)) {
+
+			$pages = array_filter($pages,function($page) {
+				return $page["values"]["in_menu"]["value"] && !$page["values"]["parent-page"]["value"];
+			});
+
+
+			if($pages && count($pages)) {
+				$return = [];
+				foreach($pages as $page) {
+
+					$children = $this->getChildrens($page);
+					$page['submenu'] = $children ? $children : null;
+					$page['haveSubmenu'] = $children && count($children) ? true:false;
+					$return[]=$page;
+				}
+			}
+		}
+
+
+		return $return;
+    }
+
+	private function getChildrens($current_page) {
+
+
+		$all = $this->api->getModuleElements($this->getPageModuleId())["results"];
+		$pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
+		$return = null;
+		if($pages && count($pages)) {
+			$pages = array_filter($pages, function ($page) use ($current_page) {
+//				if($page["values"]["parent-page"]["value"]) echo '<pre style="background:rgvb(240,200,200,0.5)">'.$page['values']['menu']['value']." / ".$current_page["unique"]." == ? ".$page["values"]["parent-page"]["value"]."</pre>";
+				return $page["values"]["in_menu"]["value"] && $page["values"]["parent-page"]["value"] == $current_page["unique"];
+			});
+			if ($pages && count($pages)) {
         $return = [];
         foreach ($pages as $page) {
-            if ($page["values"]["in_menu"]["value"]) {
+					$children = $this->getChildrens($page);
+					$page['submenu'] = $children ? $children : null;
+					$page['haveSubmenu'] = $children && count($children) ? true:false;
                 $return[] = $page;
             }
         }
-
+		}
         return $return;
     }
 

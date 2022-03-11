@@ -1,5 +1,66 @@
+{% macro drawSubmenu(page,current_page) %}
+
+
+    {% if page.haveSubmenu %}
+        <ul class="dropdown-menu" aria-labelledby="navbar_{{ page.id }}">
+            {% if page.values.url.value !='#' %}
+            <li class="dropdown-item">
+                <a class="dropdown-link  {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
+
+                   href="/{{ page.values.url.value }}">{{ page.values.menu.value }}</a>
+
+                {% endif %}
+            </li>
+            {% for page in page.submenu %}
+                <li class="dropdown-item dropend">
+                    <a class="{% if page.values.url.value == current_page.values.url.value %}active {% endif %}dropdown-link {{ page.haveSubmenu ? 'dropdown-toggle':'' }}" {{ page.haveSubmenu ? 'data-bs-toggle="dropdown"':'' }}
+                       href="/{{ page.values.url.value }}">
+                        {{ page.values.menu.value }}
+                    </a>
+                    {% if page.haveSubmenu %}
+                        {{ _self.drawSubmenu(page,current_page) }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+    {% endif %}
+{% endmacro %}
+<header>
 <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-white">
     <div class="container">
+
+            <div class="d-none d-lg-block col-5">
+                <div class="collapse navbar-collapse">
+
+                    <ul class="navbar-nav">
+                        {% for page in menu %}
+
+                            {% set showItem=0 %}
+                            {% for location in page.values.location %}
+                                {% if location.value == 'left' %}
+                                    {% set showItem=1 %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if showItem %}
+                                <li class="nav-item {{ page.haveSubmenu ? 'dropdown':'' }}">
+                                    <a class="nav-link  {{ page.haveSubmenu ? 'dropdown-toggle':'' }} {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
+                                            {% if page.haveSubmenu %}
+                                                id="navbar_{{ page.id }}" data-bs-toggle="dropdown" href="{{ page.values.url.value ? '/' ~ page.values.url.value:'#'}}" aria-haspopup="true" aria-expanded="false"
+                                            {% endif %}
+                                       href="/{{ page.values.url.value }}">{{ page.values.menu.value }}</a>
+                                    {% if page.haveSubmenu %}
+
+                                        {{ _self.drawSubmenu(page,current_page) }}
+
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12 col-xs-12 col-lg-2 d-flex ">
         {% if current_page.values.logo.value %}
             <a href="/" class="navbar-brand"><img src="{{ asset(current_page.values.logo) }}" alt="{{ web.values.title.value }}" class="navbar-brand-img"></a>
         {% elseif web.values.logo.value %}
@@ -8,12 +69,39 @@
             <h1 class="navbar-brand"><a href="/">{{ web.values.title.value }}</a></h1>
         {% endif %}
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse2"
+                        aria-controls="navbarCollapse2" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+            </div>
 
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <div class="d-none d-lg-block col-5">
+                <div class="collapse navbar-collapse">
+
+                    <ul class="navbar-nav ms-auto">
+                        {% for page in menu %}
+                            {% set showItem=0 %}
+                            {% for location in page.values.location %}
+                                {% if location.value == 'right' %}
+                                    {% set showItem=1 %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if showItem %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
+                                       href="/{{ page.values.url.value }}">{{ page.values.menu.value }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-sm-block d-xs-block d-md-block d-lg-none">
+                <div class=" collapse navbar-collapse" id="navbarCollapse2">
+                    <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#navbarCollapse2" aria-controls="navbarCollapse2" aria-expanded="false"
+                            aria-label="Toggle navigation">
                 <i class="fe fe-x"></i>
             </button>
             <ul class="navbar-nav ms-auto">
@@ -25,4 +113,6 @@
             </ul>
         </div>
     </div>
+        </div>
 </nav>
+</header>
