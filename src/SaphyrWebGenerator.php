@@ -259,8 +259,9 @@ class SaphyrWebGenerator
     public function render()
     {
         try {
+			$this->redirectHttpsWww();
 			$this->handleXHR();
-            $this->redirectHttpsWww();
+
 
             $this->compilScss();
 
@@ -293,24 +294,27 @@ class SaphyrWebGenerator
      */
     protected function redirectHttpsWww()
     {
-        $web = $this->getWeb();
+		$web = $this->getWeb()['values'];
+		$force_www = isset($web['force_www']) && $web['force_www'];
+		$force_https = isset($web['force_https']) && $web['force_https'];
+		$redirect = $_SERVER["SERVER_NAME"];
+		if ($force_www && substr($_SERVER["SERVER_NAME"], 0, 4) !== "www.") {
+			$redirect = "www." . $redirect;
 
-        $redirect = $_SERVER["SERVER_NAME"];
-        if (isset($web["force_www"]) && $web["force_www"] && substr($_SERVER["SERVER_NAME"], 0, 4) !== "www.") {
-            $redirect = "www." . $redirect;
-        }
-        if (isset($web["force_https"]) && $web["force_https"] && !self::_isHttps() && $_SERVER["REMOTE_ADDR"] !== "127.0.0.1") {
-            $redirect = "https://" . $redirect;
-        }
+		}
+		if ($force_https && !self::_isHttps() && $_SERVER["REMOTE_ADDR"] !== "127.0.0.1") {
+			$redirect = "https://" . $redirect;
+		}
 
-        if ($redirect !== $_SERVER["SERVER_NAME"]) {
-            if (substr($redirect, 0, 8) !== "https://" && substr($redirect, 0, 8) !== "http://") {
-                $redirect = "http://" . $redirect;
-            }
-            $redirect .= "/" . $this->request_uri;
-            header("Location: " . $redirect, true, 301);
-            exit;
-        }
+		if ($redirect !== $_SERVER["SERVER_NAME"]) {
+
+			if (substr($redirect, 0, 8) !== "https://" && substr($redirect, 0, 8) !== "http://") {
+				$redirect = "http://" . $redirect;
+			}
+			$redirect .= "/" . $this->request_uri;
+			header("Location: " . $redirect, true, 301);
+			exit;
+		}
     }
 
     /**
