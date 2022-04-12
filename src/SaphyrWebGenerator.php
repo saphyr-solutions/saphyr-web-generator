@@ -298,6 +298,7 @@ class SaphyrWebGenerator
 		$force_www = isset($web['force_www']) && $web['force_www'];
 		$force_https = isset($web['force_https']) && $web['force_https'];
 		$redirect = $_SERVER["SERVER_NAME"];
+
 		if ($force_www && substr($_SERVER["SERVER_NAME"], 0, 4) !== "www.") {
 			$redirect = "www." . $redirect;
 
@@ -311,7 +312,9 @@ class SaphyrWebGenerator
 			if (substr($redirect, 0, 8) !== "https://" && substr($redirect, 0, 8) !== "http://") {
 				$redirect = "http://" . $redirect;
 			}
-			$redirect .= "/" . $this->request_uri;
+
+            if(isset($this->request_uri) && $this->request_uri)$redirect .= "/" . $this->request_uri;
+
 			header("Location: " . $redirect, true, 301);
 			exit;
 		}
