@@ -2,7 +2,7 @@
 
 
     {% if page.haveSubmenu %}
-        <ul class="dropdown-menu" aria-labelledby="navbar_{{ page.id }}">
+        <ul class="dropdown-menu ps-sm-4" aria-labelledby="navbar_{{ page.id }}">
             {% if page.values.url.value !='#' %}
             <li class="dropdown-item">
                 <a class="dropdown-link  {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"

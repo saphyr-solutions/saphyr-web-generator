@@ -1,3 +1,24 @@
+{% macro drawFooterSubmenu(page,current_page) %}
+
+
+    {% if page.haveSubmenu %}
+        <ul class="list-unstyled text-muted mb-6 mb-md-8 mb-lg-0 ps-4">
+
+            {% for page in page.submenu %}
+                <li >
+                    <a class="{% if page.values.url.value == current_page.values.url.value %}active {% endif %}text-reset"  href="/{{ page.values.url.value }}">
+                        {{ page.values.menu.value }}
+                    </a>
+                    {% if page.haveSubmenu %}
+                        {{ _self.drawFooterSubmenu(page,current_page) }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+    {% endif %}
+{% endmacro %}
+
 <footer class="py-8 py-md-11 bg-gray-200">
     <div class="container">
         <div class="row">
@@ -12,28 +33,28 @@
                     {% if web.values.twitter.value %}
                         <li class="list-inline-item list-social-item me-3">
                             <a href="{{ web.values.twitter.value }}" class="text-decoration-none">
-                                <img src="{{ asset("assets/dist/img/icons/social/twitter.svg") }}" class="list-social-icon">
+                                <img alt="" src="{{ asset("assets/dist/img/icons/social/twitter.svg") }}" class="list-social-icon">
                             </a>
                         </li>
                     {% endif %}
                     {% if web.values.facebook.value %}
                         <li class="list-inline-item list-social-item me-3">
                             <a href="{{ web.values.facebook.value }}" class="text-decoration-none">
-                                <img src="{{ asset("assets/dist/img/icons/social/facebook.svg") }}" class="list-social-icon">
+                                <img alt="" src="{{ asset("assets/dist/img/icons/social/facebook.svg") }}" class="list-social-icon">
                             </a>
                         </li>
                     {% endif %}
                     {% if web.values.instagram.value %}
                         <li class="list-inline-item list-social-item me-3">
                             <a href="{{ web.values.instagram.value }}" class="text-decoration-none">
-                                <img src="{{ asset("assets/dist/img/icons/social/instagram.svg") }}" class="list-social-icon">
+                                <img alt="" src="{{ asset("assets/dist/img/icons/social/instagram.svg") }}" class="list-social-icon">
                             </a>
                         </li>
                     {% endif %}
                     {% if web.values.linkedin.value %}
                         <li class="list-inline-item list-social-item me-3">
                             <a href="{{ web.values.linkedin.value }}" class="text-decoration-none">
-                                <img src="{{ asset("assets/dist/img/icons/social/linkedin.svg") }}" class="list-social-icon">
+                                <img alt="" src="{{ asset("assets/dist/img/icons/social/linkedin.svg") }}" class="list-social-icon">
                             </a>
                         </li>
                     {% endif %}
@@ -46,6 +67,9 @@
                     {% for page in menu|slice(0,5) %}
                         <li>
                             <a href="/{{ page.values.url.value }}" class="text-reset">{{ page.values.menu.value }}</a>
+                            {% if page.haveSubmenu %}
+                                {{ _self.drawFooterSubmenu(page,current_page) }}
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
