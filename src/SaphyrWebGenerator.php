@@ -66,7 +66,9 @@ class SaphyrWebGenerator
         $this->config = $config;
 		if($this->config->editor_mode=='sph22') $_SESSION['isEditMode']=true;
 		if($this->config->editor_mode=='Osph22') $_SESSION['isEditMode']=false;
-
+		if($_SESSION['isEditMode']) {
+			$this->config->api_ttl=5;
+		}
         $this->api = new Api([
             'client' => $config->api_client,
             'pubKey' => $config->api_public_key,
