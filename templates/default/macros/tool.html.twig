@@ -81,7 +81,7 @@
     {% if current_bloc.values.image_link.value %}</a>{% endif %}
 {% endmacro %}
 
-{% macro header(current_bloc, level = "1",classes="",html="",addClasses="1") %}
+{% macro header(current_bloc, level = "1",classes="",html="",addClasses="0") %}
      <h{{ level}}  class="{% if addClasses %}{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% endif%} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}" {{ html }}>{{ current_bloc.values.title.value|snl2br|raw }}</h{{ level }}>
 {% endmacro %}
 

@@ -276,7 +276,7 @@ class SaphyrWebGenerator
             }
             if (!$context["current_page"]) {
                 return $this->renderError(404);
-                // TODO si la page n'est pas trouvé, regardé en + si elle existe via l'API
+                // TODO si la page n'est pas trouvée, regarder en + si elle existe via l'API
             }
 
             $this->handlePostDatas($context["current_page"]);

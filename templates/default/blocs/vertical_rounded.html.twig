@@ -1,6 +1,6 @@
 {% import "/macros/tool.html.twig" as macros %}
 
-<div  {{ macros.getEditableBloc(current_bloc) }} class="card shadow-light-lg lift lift-lg h-100 {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}"  ddata-aos="fade-up" data-aos-delay="200">
+<div  {{ macros.getEditableBloc(current_bloc) }} class="card shadow-light-lg lift lift-lg h-100 {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}"  data-aos="fade-up" data-aos-delay="200">
     <!-- Image -->
     {% if current_bloc.values.image.value %}
         {{ macros.img(current_bloc, "card-img-top") }}

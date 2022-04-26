@@ -1,6 +1,6 @@
 {% extends "_html.html.twig" %}
 
-{% block bodyClasses %}p_{{ current_page.values.url.value and current_page.values.url.value != '/' ? current_page.values.url.value : 'home' }}{% endblock %}
+{% block bodyClasses %} {{ current_page.values.classes_css_body.value }}  p_{{ current_page.values.url.value and current_page.values.url.value != '/' ? current_page.values.url.value : 'home' }}{% endblock %}
 {% block content %}
 
     {% include 'includes/nav.html.twig' %}
