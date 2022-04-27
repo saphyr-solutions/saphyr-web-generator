@@ -40,13 +40,13 @@
                     {{ current_bloc.values.text.value|snl2br|raw }}
 
                 {% else %}
-                    <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
+                    <p class="text-center text-md-start mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
                         {{ current_bloc.values.text.value|snl2br|raw }}
                     </p>
                 {% endif %}
             {% endif %}
 {#            {% if current_bloc.values.text.value %}#}
-{#                <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
+{#                <p class="text-center text-md-start mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
 {#            {% endif %}#}
 
             {% if current_bloc.values.files %}
@@ -55,7 +55,7 @@
 
             <!-- Author -->
             {% if current_bloc.values.author.value %}
-                <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</p>
+                <p class="mt-2 pt-2 border-top text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</p>
             {% endif %}
 
             <!-- Button -->
