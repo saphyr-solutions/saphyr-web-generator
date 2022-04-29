@@ -3,6 +3,7 @@
 
     {% if page.haveSubmenu %}
         <ul class="dropdown-menu ps-sm-4" aria-labelledby="navbar_{{ page.id }}">
+            {% if page.visible%}
             {% if page.values.url.value !='#' %}
             <li class="dropdown-item">
                 <a class="dropdown-link  {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
@@ -12,6 +13,7 @@
                 {% endif %}
             </li>
             {% for page in page.submenu %}
+                {%if page.visible %}
                 <li class="dropdown-item dropend">
                     <a class="{% if page.values.url.value == current_page.values.url.value %}active {% endif %}dropdown-link {{ page.haveSubmenu ? 'dropdown-toggle':'' }}" {{ page.haveSubmenu ? 'data-bs-toggle="dropdown"':'' }}
                        href="/{{ page.values.url.value }}">
@@ -21,7 +23,9 @@
                         {{ _self.drawSubmenu(page,current_page) }}
                     {% endif %}
                 </li>
+                {% endif %}
             {% endfor %}
+            {% endif %}
         </ul>
     {% else %}
     {% endif %}
@@ -46,6 +50,7 @@
             </button>
             <ul class="navbar-nav ms-auto">
                 {% for page in menu %}
+                    {% if page.visible%}
                     <li class="nav-item {{ page.haveSubmenu ? 'dropdown':'' }}">
                         <a class="nav-link  {{ page.haveSubmenu ? 'dropdown-toggle':'' }} {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
                                 {% if page.haveSubmenu %}
@@ -58,6 +63,7 @@
 
                         {% endif %}
                     </li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>
