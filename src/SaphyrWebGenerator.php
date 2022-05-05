@@ -3,6 +3,7 @@
 namespace SaphyrWebGenerator;
 
 use SaphyrWebGenerator\Api\Api;
+use SaphyrWebGenerator\Api\QueryBuilder;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
 use Twig\Environment;
@@ -253,6 +254,95 @@ class SaphyrWebGenerator
 			}
 		}
 	}
+
+
+	/**
+	 * Build sitemap.xml if new content added
+	 * @param $context
+	 * @return void
+	 * @throws \Exception
+	 */
+	protected function refreshSitemap($context) {
+
+
+		$lastPageMod='';
+		$dates = array_column($context['menu'], 'modification_date');
+		if($dates && is_array($dates)) {
+			$dates = array_map(function ($e) {
+				return strtotime($e);
+			}, $dates);
+			rsort($dates);
+			$lastPageMod = array_shift($dates);
+		}
+		$webLastMod = strtotime($context['web']['modification_date']);
+		$webLastMod = max($webLastMod,$lastPageMod);
+		$path = './sitemap.xml';
+		$update_sitemap = false;
+
+		if (!file_exists($path)) {
+			$update_sitemap=true;
+		}
+		elseif (!filesize($path)) {
+			$update_sitemap=true;}
+		else {
+			$lastMod = filemtime($path);
+			if($webLastMod<0 ||$lastMod<0) { $update_sitemap=true;}
+			else {
+				if($lastMod<$webLastMod) $update_sitemap=true;
+			}
+		}
+
+		if($update_sitemap) {
+			$web = $context['web']['values'];
+			$domainURL =$web['domaine-principal-pour-information']['value'];
+			if(!$domainURL) {
+				$web = $this->getWeb()['values'];
+				$force_www = isset($web['force_www']) && $web['force_www'];
+				$force_https = isset($web['force_https']) && $web['force_https'];
+				$redirect = $_SERVER["SERVER_NAME"];
+
+				if ($force_www && substr($_SERVER["SERVER_NAME"], 0, 4) !== "www.") {
+					$redirect = "www." . $redirect;
+
+				}
+				if ($force_https ) {
+					$redirect = "https://" . $redirect;
+				}	 else {
+					$redirect = "http://".$redirect;
+				}
+				$domainURL=$redirect."/";
+			}
+			$xml = new \XMLWriter();
+			$xml->openMemory();
+
+			$xml->startDocument("1.0",'UTF-8');
+			$xml->startElement("urlset");
+			$xml->startAttribute('xmlns',"http://www.sitemaps.org/schemas/sitemap/0.9");
+			$xml->writeAttribute('xmlns','http://www.sitemaps.org/schemas/sitemap/0.9');
+			$xml->endAttribute();
+
+
+			$pages = array_filter($context['menu'],function($item) { return $item['values']['status']['value']=='online';});
+			if($pages) {
+				foreach($pages as $page) {
+					$values = $page['values'];
+					$ts = strtotime($page['modification_date']);
+
+					$xml->startElement('url');
+					$xml->startElement('loc');
+					$xml->text($domainURL.$values['url']['value']);
+					$xml->endElement();
+					$xml->startElement('lastmod');
+					$xml->text(gmdate("Y-m-d", $ts) .'T'. gmdate("H:m:s", $ts) . '+01:00');
+					$xml->endElement();
+					$xml->endElement();
+				}
+			}
+			$xml->endElement();
+			$sitemap = $xml->outputMemory();
+			file_put_contents($path, $sitemap);
+		}
+	}
     /**
      * Load and return current page
      *
@@ -261,6 +351,7 @@ class SaphyrWebGenerator
     public function render()
     {
         try {
+
 			$this->redirectHttpsWww();
 			$this->handleXHR();
 
@@ -271,6 +362,7 @@ class SaphyrWebGenerator
             $pageType = $this->getRequestPageType();
 
             $context = $this->getTwigContext();
+			$this->refreshSitemap($context);
             if (!$context["web"]) {
                 return $this->renderError(404);
             }
@@ -420,10 +512,38 @@ class SaphyrWebGenerator
                 }
             }
         }
-
         return $this->web;
     }
 
+	private function getFooterMenus() {
+		$all = $this->api->getModuleElements($this->getPageModuleId())["results"];
+		$pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
+
+		$return = null;
+		if($pages && count($pages)) {
+			$pages = array_filter($pages,function($page) {
+				return is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"]) && $page["values"]["status"]["value"]=="online";
+			});
+
+			if($pages && count($pages)) {
+				$return = [];
+				foreach($pages as $page) {
+
+					$children = $this->getChildrens($page,"footer");
+					$page['show_in']= null;
+
+					if(is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"])) {
+						$page['show_in'] = array_column($page["values"]["afficher-aussi-dans"], 'value');
+					}
+					$page['visible']= $page["values"]["in_menu"]["value"];
+					$page['submenu'] = $children ? $children : null;
+					$page['haveSubmenu'] = $children && count($children) ? true:false;
+					$return[]=$page;
+				}
+			}
+		}
+		return $return;
+	}
     /**
      * @return array|mixed
      * @throws \Exception
@@ -436,42 +556,57 @@ class SaphyrWebGenerator
 		$return = null;
 		if($pages && count($pages)) {
 
-			$pages = array_filter($pages,function($page) {
-				return $page["values"]["in_menu"]["value"] && !$page["values"]["parent-page"]["value"];
-			});
 
+			$pages = array_filter($pages,function($page) {
+//				return $page["values"]["in_menu"]["value"] && !$page["values"]["parent-page"]["value"];
+				return  $page["values"]["status"]["value"]=="online" && !$page["values"]["parent-page"]["value"];
+			});
 
 			if($pages && count($pages)) {
 				$return = [];
 				foreach($pages as $page) {
 
 					$children = $this->getChildrens($page);
+					$page['show_in']= null;
+
+					if(is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"])) {
+						$page['show_in'] = array_column($page["values"]["afficher-aussi-dans"], 'value');
+					}
+					$page['visible']= $page["values"]["in_menu"]["value"];
 					$page['submenu'] = $children ? $children : null;
 					$page['haveSubmenu'] = $children && count($children) ? true:false;
 					$return[]=$page;
 				}
 			}
+
 		}
 
 
 		return $return;
     }
 
-	private function getChildrens($current_page) {
+	private function getChildrens($current_page,$whereLoc="header") {
 
 
 		$all = $this->api->getModuleElements($this->getPageModuleId())["results"];
 		$pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
 		$return = null;
 		if($pages && count($pages)) {
-			$pages = array_filter($pages, function ($page) use ($current_page) {
-//				if($page["values"]["parent-page"]["value"]) echo '<pre style="background:rgvb(240,200,200,0.5)">'.$page['values']['menu']['value']." / ".$current_page["unique"]." == ? ".$page["values"]["parent-page"]["value"]."</pre>";
-				return $page["values"]["in_menu"]["value"] && $page["values"]["parent-page"]["value"] == $current_page["unique"];
+			$pages = array_filter($pages, function ($page) use ($current_page,$whereLoc) {
+				if($whereLoc=="footer") {
+					return  $page["values"]["status"]["value"]=="online" && is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"]) && $page["values"]["parent-page"]["value"] == $current_page["unique"];
+				}
+				else return  $page["values"]["status"]["value"]=="online" && $page["values"]["in_menu"]["value"] && $page["values"]["parent-page"]["value"] == $current_page["unique"];
 			});
 			if ($pages && count($pages)) {
         $return = [];
         foreach ($pages as $page) {
 					$children = $this->getChildrens($page);
+			$page['show_in']= [];
+			if(is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"])) {
+				$page['show_in'] = array_column($page["values"]["afficher-aussi-dans"], 'value');
+			}
+			$page['visible']= $page["values"]["in_menu"]["value"];
 					$page['submenu'] = $children ? $children : null;
 					$page['haveSubmenu'] = $children && count($children) ? true:false;
                 $return[] = $page;
@@ -661,6 +796,7 @@ class SaphyrWebGenerator
     {
         $web = $this->getWeb();
         $menu = $this->getMenu();
+		$footerMenu = $this->getFooterMenus();
         $currentPage = $this->getCurrentPage();
 
         $moduleId = $this->getRequestPageModuleId();
@@ -668,6 +804,7 @@ class SaphyrWebGenerator
         return [
             "web" => $web,
             "menu" => $menu,
+			"footer_menu" => $footerMenu,
 			"moduleId" => $moduleId,
 			"module" => $module,
 			"config" => $this->config,

@@ -108,6 +108,7 @@ function SaphyrEditor(editor) {
                 return item.module_slug=='blocs';
             });
             var sectionConfig = JSON.parse(section.dataset.editor);
+            var position = section.dataset.editorPosition;
 
             e.className = e.className + ' editor article';
 
@@ -115,7 +116,7 @@ function SaphyrEditor(editor) {
                 return false;
             };
             var tpl = document.createElement('div');
-            tpl.className = 'editor_container';
+            tpl.className = 'editor_container editor_'+(position);
             tpl.innerHTML = '<div class="inlinebtn"><a class="ArticleEdit" href="javascript:void(0)">' + btns[sectionConfig.module_slug].replace('{title}', 'Editer l\'article') + '</a></div>';
 
             sel = tpl.querySelector('a.ArticleEdit');
@@ -155,13 +156,14 @@ function SaphyrEditor(editor) {
             return item.module_slug!='sections';
         });
         var sectionConfig = JSON.parse(section.dataset.editor);
+        var position = section.dataset.editorPosition;
         e.className = e.className + ' editor section';
 
         e.oncontextmenu = function (e) {
             return false;
         };
         var tpl = document.createElement('div');
-        tpl.className = 'editor_container';
+        tpl.className = 'editor_container editor_'+(position);
         tpl.innerHTML = '<div class="inlinebtn"><a class="sectionEdit" href="javascript:void(0)">' + btns[sectionConfig.module_slug].replace('{title}', 'Editer la section') + '</a> <a class="sectionAddBloc" href="javascript:void(0)">' + btns.plus.replace('{title}', 'Ajouter un bloc') + '</a></div>';
 
         sel = tpl.querySelector('a.sectionEdit');
@@ -202,9 +204,10 @@ function SaphyrEditor(editor) {
                 };
                 child.className = e.className + ' editor';
                 var childConfig = JSON.parse(child.dataset.editor);
+                var position = child.dataset.editorPosition;
 
                 var tpl = document.createElement('div');
-                tpl.className = 'editor_container';
+                tpl.className = 'editor_container editor_'+(position);
 
                 if (btns[childConfig.module_slug]) {
                     tpl.innerHTML = '<div class="inlinebtn"><a class="blocEdit" href="javascript:void(0)">' + btns[childConfig.module_slug].replace('{title}', 'Modifier') + '</a> </div>';

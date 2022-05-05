@@ -81,8 +81,9 @@
     {% if current_bloc.values.image_link.value %}</a>{% endif %}
 {% endmacro %}
 
-{% macro header(current_bloc, level = "1",classes="",html="",addClasses="0") %}
-     <h{{ level}}  class="{% if addClasses %}{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% endif%} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}" {{ html }}>{{ current_bloc.values.title.value|snl2br|raw }}</h{{ level }}>
+{% macro header(current_bloc, level = "1",classes="",html="",addClasses="0",allowEditor="0") %}
+    {% set html_header = current_bloc.values.taille_du_titre.value ? current_bloc.values.taille_du_titre.value : 'h' ~ level %}
+    <{{ html_header }} {% if allowEditor == "editable" %}{{ _self.getEditableBloc(current_bloc,"left") }}{% endif %} class="{% if addClasses %}{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% endif%} {{ classes }} " style="{{ _self.getStyles(current_bloc, "title_")|trim }}" {{ html }}>{{ current_bloc.values.title.value|snl2br|raw }}</h{{ html_header }}>
 {% endmacro %}
 
 {% macro button(current_bloc, classes="",html="") %}
@@ -163,9 +164,9 @@
     {% endif %}
 {% endmacro %}
 
-{% macro getEditableBloc(current_bloc) %}
+{% macro getEditableBloc(current_bloc,position="right") %}
     {% if  _session.isEditMode %}
-        data-editor='{"module_slug": "{{ current_bloc.module.slug }}","module_id": "{{ current_bloc.module.id }}","id":"{{ current_bloc.unique }}"}'
+        data-editor-position="{{ position }}" data-editor='{"module_slug": "{{ current_bloc.module.slug }}","module_id": "{{ current_bloc.module.id }}","id":"{{ current_bloc.unique }}"}'
     {% endif %}
 {% endmacro %}
 
