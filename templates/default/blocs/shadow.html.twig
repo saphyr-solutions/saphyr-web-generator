@@ -24,11 +24,17 @@
     {% endif %}
 
     {% if current_bloc.values.title.value %}
-        {{ macros.header(current_bloc, "3"," mb-5 ") }}
+        {{ macros.header(current_bloc, current_bloc.values.header_size.value?:3," mb-5 ") }}
     {% endif %}
 
     {% if current_bloc.values.text.value %}
-        <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="text-muted">{{ current_bloc.values.text.value|snl2br|raw }}</p>
+        <span class="text-muted" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
+            {% if isHTML(current_bloc.values.text.value) %}
+                {{ current_bloc.values.text.value|raw }}
+            {% else %}
+                {{ current_bloc.values.text.value|snl2br|raw }}
+            {% endif %}
+        </span>
     {% endif %}
 
     {% if current_bloc.values.files %}

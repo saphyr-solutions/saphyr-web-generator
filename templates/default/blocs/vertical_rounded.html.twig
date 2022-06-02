@@ -34,18 +34,17 @@
         {% endif %}
 
         {% if current_bloc.values.title.value %}
-            {{ macros.header(current_bloc,2) }}
+            {{ macros.header(current_bloc,current_bloc.values.header_size.value?:2) }}
         {% endif %}
 
         {% if current_bloc.values.text.value %}
-{#            <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
-        {% if isHTML(current_bloc.values.text.value) %}
-
-            {{ current_bloc.values.text.value|raw }}
-
-        {% else %}
-            <p style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>
-            {% endif %}
+        <span style="{{ macros.getStyles(current_bloc, "text_")|trim }}" class="mt-5">
+            {% if isHTML(current_bloc.values.text.value) %}
+                {{ current_bloc.values.text.value|raw }}
+            {% else %}
+                {{ current_bloc.values.text.value|snl2br|raw }}
+                {% endif %}
+        </span>
         {% endif %}
 
         {% if current_bloc.values.files %}

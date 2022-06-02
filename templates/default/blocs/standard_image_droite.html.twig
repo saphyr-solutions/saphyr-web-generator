@@ -6,7 +6,7 @@
                 {{ macros.img(current_bloc, "img-fluid") }}
             {% endif %}
         </div>
-        <div class="order-2 order-md-1 col-12  {% if current_bloc.values.image.value %}col-md-6 {% endif %}order-md-1">
+        <span class="order-2 order-md-1 col-12  {% if current_bloc.values.image.value %}col-md-6 {% endif %}order-md-1">
 
             {% if current_bloc.values.label_1_label.value %}
                 <div class="position-relative text-start mb-3">
@@ -27,19 +27,18 @@
             {% endif %}
 
             {% if current_bloc.values.title.value %}
-                {{ macros.header(current_bloc,2,'','',0) }}
+                {{ macros.header(current_bloc,current_bloc.values.header_size.value?:2,'','',0) }}
             {% endif %}
 
             {% if current_bloc.values.text.value %}
+
+            <span class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
                 {% if isHTML(current_bloc.values.text.value) %}
-
                     {{ current_bloc.values.text.value|raw }}
-
                 {% else %}
-                    <p class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
-                        {{ current_bloc.values.text.value|snl2br|raw }}
-                    </p>
+                    {{ current_bloc.values.text.value|snl2br|raw }}
                 {% endif %}
+            </span>
             {% endif %}
             {% if current_bloc.values.files %}
                 {{ macros.files(current_bloc) }}

@@ -30,20 +30,18 @@
 
             <!-- Headers -->
             {% if current_bloc.values.title.value %}
-                {{ macros.header(current_bloc, "1","text-center text-md-start ") }}
+                {{ macros.header(current_bloc, current_bloc.values.header_size.value?:1,"text-center text-md-start ") }}
             {% endif %}
 
             <!-- Text -->
             {% if current_bloc.values.text.value %}
+            <span class="text-center text-md-start mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
                 {% if isHTML(current_bloc.values.text.value) %}
-
-                    {{ current_bloc.values.text.value|snl2br|raw }}
-
+                    {{ current_bloc.values.text.value|raw }}
                 {% else %}
-                    <p class="text-center text-md-start mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
-                        {{ current_bloc.values.text.value|snl2br|raw }}
-                    </p>
+                    {{ current_bloc.values.text.value|snl2br|raw }}
                 {% endif %}
+            </span>
             {% endif %}
 {#            {% if current_bloc.values.text.value %}#}
 {#                <p class="text-center text-md-start mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}

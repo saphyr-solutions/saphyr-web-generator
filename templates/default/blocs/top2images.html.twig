@@ -26,20 +26,18 @@
 
             <!-- Headers -->
             {% if current_bloc.values.title.value %}
-                {{ macros.header(current_bloc, "1"," display-3 text-center text-md-start ") }}
+                {{ macros.header(current_bloc, current_bloc.values.header_size.value?:1," display-3 text-center text-md-start ") }}
             {% endif %}
 
             <!-- Text -->
             {% if current_bloc.values.text.value %}
-                {% if isHTML(current_bloc.values.text.value) %}
-
+                <span class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
+                    {% if isHTML(current_bloc.values.text.value) %}
+                        {{ current_bloc.values.text.value|raw }}
+                    {% else %}
                         {{ current_bloc.values.text.value|snl2br|raw }}
-
-                {% else %}
-                    <p class="lead text-center text-md-start text-muted mb-6 mb-lg-8" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
-                        {{ current_bloc.values.text.value|snl2br|raw }}
-                    </p>
-                {% endif %}
+                    {% endif %}
+                </span>
             {% endif %}
 
             {% if current_bloc.values.image.value %}

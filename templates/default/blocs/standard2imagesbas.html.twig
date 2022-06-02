@@ -21,22 +21,17 @@
     {% endif %}
 
     {% if current_bloc.values.title.value %}
-        {{ macros.header(current_bloc,2,'','',0) }}
+        {{ macros.header(current_bloc,current_bloc.values.header_size.value?:2,'','',0) }}
     {% endif %}
 
-{#    {% if current_bloc.values.text.value %}#}
-{#        <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
-{#    {% endif %}#}
     {% if current_bloc.values.text.value %}
+    <span class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
         {% if isHTML(current_bloc.values.text.value) %}
-
-            {{ current_bloc.values.text.value|snl2br|raw }}
-
+            {{ current_bloc.values.text.value|raw }}
         {% else %}
-            <p class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
-                {{ current_bloc.values.text.value|snl2br|raw }}
-            </p>
+            {{ current_bloc.values.text.value|snl2br|raw }}
         {% endif %}
+    </span>
     {% endif %}
 
 
