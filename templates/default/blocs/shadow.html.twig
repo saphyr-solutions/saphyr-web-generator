@@ -30,7 +30,7 @@
     {% if current_bloc.values.text.value %}
         <div class="text-muted" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
            {{ current_bloc.values.text.value|snl2br|raw }}
-        </di>
+        </div>
     {% endif %}
 
     {% if current_bloc.values.files %}
