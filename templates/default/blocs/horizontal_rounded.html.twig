@@ -2,7 +2,7 @@
 
 <div class="card card-row shadow-light-lg {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
     <div class="row gx-0">
-        <a class="col-12 col-md-4 bg-cover card-img-start" style="background-image: url({{ asset(current_bloc.values.image) }});" {{ current_bloc.values.image_link.value ? 'href="'~current_bloc.values.image_link.value~'"': "" }}>
+        <a class="col-12 col-md-4 bg-cover card-img-start" style="background-image: url({{ asset(current_bloc.values.image) }});"  {% if current_bloc.values.image_link.value %}href="{{ current_bloc.values.image_link.value }}"{% endif %}>
             <!-- Image (placeholder) -->
             <img class="img-fluid d-md-none invisible" src="{{ asset(current_bloc.values.image) }}" alt="{{ current_bloc.values.image.label }}">
 
