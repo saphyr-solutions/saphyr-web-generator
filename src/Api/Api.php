@@ -440,9 +440,6 @@ class Api
 	{
 		if (!empty($content)) {
 			$path = $this->tempStorage . '__SC__' . $this->client . '_' . $file;
-			if (file_exists($path)) {
-				@unlink($file);
-			}
 
 			$tempfile = $path . uniqid(rand(), true);
 			file_put_contents($tempfile, json_encode($content), LOCK_EX);
@@ -497,7 +494,7 @@ class Api
 	{
 		$path = $this->tempStorage . '__SC__' . $this->client . '_' . $file;
 		if (file_exists($path)) {
-			@unlink($file);
+			@unlink($path);
 		}
 	}
 
@@ -615,11 +612,13 @@ class Api
 		}
 
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if ($httpCode == 404) {
-			error_log('api call ' . $action . ' returns 404');
+        curl_close($ch);
+
+		if ($httpCode < 200 || $httpCode > 299) {
+			error_log('api call ' . $action . ' returns '.$httpCode);
 			return null;
 		}
-		curl_close($ch);
+
 		if ($this->debug) {
 			rewind($verbose);
 			$verboseLog = stream_get_contents($verbose);
@@ -631,7 +630,7 @@ class Api
 			$return = json_decode($result, true);
 
 			if (isset($return["error"]) && isset($return["error"]["message"])) {
-				var_dump($return);
+                if ($this->debug)var_dump($return);
 				throw  new \Exception($return["error"]["message"]);
 			}
 			if (is_array($return) || is_object($return)) {
@@ -689,7 +688,6 @@ class Api
 
 	public function getToken()
 	{
-
 		$ttl = $this->ttl;
 		$this->ttl = $this->token_ttl;
 		try {
