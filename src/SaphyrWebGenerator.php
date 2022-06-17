@@ -72,6 +72,7 @@ class SaphyrWebGenerator
 		}
         $this->api = new Api([
             'client' => $config->api_client,
+            'domain' => $config->api_domain,
             'pubKey' => $config->api_public_key,
             'privKey' => $config->api_private_key,
             'user' => $config->api_user_login,

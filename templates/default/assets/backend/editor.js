@@ -1,6 +1,6 @@
 
 function SaphyrEditor(editor) {
-    var backendUrl='https://'+editor.client+'.saphyr-solutions.ch';
+    var backendUrl='https://'+editor.client+'.'+editor.api_domain;
 
 
     // Tous les éléments éditables

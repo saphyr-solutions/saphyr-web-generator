@@ -10,6 +10,10 @@ class Api
 	 * @var string client name
 	 */
 	protected $client;
+    /**
+     * @var string domain
+     */
+    protected $domain;
 	/**
 	 * @var string token
 	 */
@@ -44,6 +48,7 @@ class Api
 			throw new \Exception('Client name is required');
 		}
 		$this->client = $settings['client'];
+		$this->domain = $settings['domain'] ?? "saphyr-solutions.com";
 		$this->pubKey = $settings['pubKey'] ?? null;
 		$this->private = $settings['privKey'] ?? null;
 		$this->ttl = $settings['ttl'] ?? null;
@@ -561,7 +566,7 @@ class Api
 		}
 
 		$headers = [];
-		$url = 'https://' . $this->client . '.saphyr-solutions.ch' . $action;
+		$url = 'https://' . $this->client . '.'.$this->domain . $action;
 		if ($this->token) {
 			$headers = ['token: ' . $this->token];
 		}

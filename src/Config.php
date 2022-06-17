@@ -22,6 +22,11 @@ class Config
     /**
      * @var string
      */
+    public $api_domain;
+
+    /**
+     * @var string
+     */
     public $api_public_key;
 
     /**
@@ -89,6 +94,7 @@ class Config
         $this->web_module_id = $web_module_id;
         $this->web_unique = $web_unique;
         $this->api_client = $api_client;
+        $this->api_domain = "saphyr-solutions.com";
         $this->api_public_key = $api_public_key;
         $this->api_private_key = $api_private_key;
         $this->api_user_login = $api_user_login;

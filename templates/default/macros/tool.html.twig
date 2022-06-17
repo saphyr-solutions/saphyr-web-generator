@@ -152,7 +152,7 @@
     {% if  _session.isEditMode %}
         <link href="{{ asset('assets/backend/editor.css') }}" rel="stylesheet">
         <script type="text/javascript">
-            var editor ={ client : "{{ config.api_client }}", slug: '{{ current_page.editor.slug }}', id:'{{ current_page.editor.id }}',section: '{{ current_page.editor.section }}',edited : '{{ current_page.unique  }}' };
+            var editor ={ client : "{{ config.api_client }}", api_domain : "{{ config.api_domain }}", slug: '{{ current_page.editor.slug }}', id:'{{ current_page.editor.id }}',section: '{{ current_page.editor.section }}',edited : '{{ current_page.unique  }}' };
         </script>
         <script defer src="{{ asset('assets/backend/editor.js') }}"></script>
     {% endif %}
