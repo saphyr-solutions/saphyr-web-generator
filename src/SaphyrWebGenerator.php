@@ -312,6 +312,7 @@ class SaphyrWebGenerator
 				}
 				$domainURL=$redirect."/";
 			}
+			$domainURL=rtrim($domainURL,'/').'/';
 			$xml = new \XMLWriter();
 			$xml->openMemory();
 
