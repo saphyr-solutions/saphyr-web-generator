@@ -1,5 +1,4 @@
 {% import "/macros/tool.html.twig" as macros %}
-{#{% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% if current_bloc.values.css_addons.value %} {{ current_bloc.values.css_addons.value  }}{% endif %}#}
 <div class="{{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
     {% if current_bloc.values.image.value %}
         {{ macros.img(current_bloc, "img-fluid") }}
@@ -28,24 +27,17 @@
     {% endif %}
 
     {% if current_bloc.values.text.value %}
-        <span class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
-            {% if isHTML(current_bloc.values.text.value) %}
-                {{ current_bloc.values.text.value|raw }}
-            {% else %}
-                {{ current_bloc.values.text.value|snl2br|raw }}
-            {% endif %}
-        </span>
+        <div class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
+            {{ current_bloc.values.text.value|snl2br|raw }}
+        </div>
     {% endif %}
-{#    {% if current_bloc.values.text.value %}#}
-{#        <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
-{#    {% endif %}#}
 
     {% if current_bloc.values.files %}
         {{ macros.files(current_bloc) }}
     {% endif %}
 
     {% if current_bloc.values.author.value %}
-        <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</p>
+        <div class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</div>
     {% endif %}
 
     {% if current_bloc.values.button_text.value %}

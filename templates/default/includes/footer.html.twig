@@ -91,31 +91,31 @@
                         {% endif %}
                     {% endfor %}
 
-                                    {% for page in footer_menu %}
-                                        {% if "footer-2" in page.show_in%}
-                                            <li>
-                                                <a href="/{{ page.values.url.value }}" class="text-reset">{{ page.values.menu.value }}</a>
-                                                {% if page.haveSubmenu %}
-                                                    {{ _self.drawFooterSubmenu(page,current_page) }}
-                                                {% endif %}
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
+                    {% for page in footer_menu %}
+                        {% if "footer-2" in page.show_in%}
+                            <li>
+                                <a href="/{{ page.values.url.value }}" class="text-reset">{{ page.values.menu.value }}</a>
+                                {% if page.haveSubmenu %}
+                                    {{ _self.drawFooterSubmenu(page,current_page) }}
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
 
                 </ul>
             </div>
             <div class="col">
                 <ul class="list-unstyled text-muted mb-6 mb-md-8 mb-lg-0">
-                                {% for page in footer_menu %}
-                                    {% if "footer-3" in page.show_in%}
-                                        <li>
-                                            <a href="/{{ page.values.url.value }}" class="text-reset">{{ page.values.menu.value }}</a>
-                                            {% if page.haveSubmenu %}
-                                                {{ _self.drawFooterSubmenu(page,current_page) }}
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
+                    {% for page in footer_menu %}
+                        {% if "footer-3" in page.show_in%}
+                            <li>
+                                <a href="/{{ page.values.url.value }}" class="text-reset">{{ page.values.menu.value }}</a>
+                                {% if page.haveSubmenu %}
+                                    {{ _self.drawFooterSubmenu(page,current_page) }}
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
                 </ul>
 
             </div>
@@ -126,7 +126,7 @@
                 {% if web.values.copyright.value %}
                     {{ web.values.copyright.value|raw }}
                 {% else %}
-                    &copy; Copyright <strong><span>{{ web.values.title.value }}</span></strong>
+                    &copy; <strong><span>{{ web.values.title.value }}</span></strong>
                 {% endif %}
             </div>
             <div class="col text-end">

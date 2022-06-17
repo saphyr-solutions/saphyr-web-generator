@@ -27,20 +27,10 @@
         {{ macros.header(current_bloc,2) }}
     {% endif %}
 
-{#    {% if current_bloc.values.text.value %}#}
-{#        <p style="{{ macros.getStyles(current_bloc, "text_") }}" class="text-muted mt-5">{{ current_bloc.values.text.value|snl2br|raw }}</p>#}
-{#    {% endif %}#}
-
     {% if current_bloc.values.text.value %}
-        {% if isHTML(current_bloc.values.text.value) %}
-
+        <div class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
             {{ current_bloc.values.text.value|snl2br|raw }}
-
-        {% else %}
-            <p class="text-muted mt-5" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
-                {{ current_bloc.values.text.value|snl2br|raw }}
-            </p>
-        {% endif %}
+        </div>
     {% endif %}
 
     {% if current_bloc.values.files %}
@@ -48,7 +38,7 @@
     {% endif %}
 
     {% if current_bloc.values.author.value %}
-        <p class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</p>
+        <div class="mt-2 pt-2 border-top text-muted text-right fst-italic">{{ current_bloc.values.author.value|snl2br|raw }}</div>
     {% endif %}
 
     {% if current_bloc.values.button_text.value %}

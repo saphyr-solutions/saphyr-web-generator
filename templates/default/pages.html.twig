@@ -5,14 +5,11 @@
 
     {% include 'includes/nav.html.twig' %}
 
-
     <section id="main" class="flex-shrink-0">
         {% for section in current_page.sections %}
-{#            <pre>{{  dump(section) }}</pre>#}
                 {{ include('sections/' ~ section.values.columns.value ~ '.html.twig', {current_section: section}, with_context = true) }}
         {% endfor %}
     </section>
-
 
     {% include 'includes/footer.html.twig' %}
 {% endblock %}
