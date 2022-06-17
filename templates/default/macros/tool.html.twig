@@ -88,7 +88,7 @@
 
 {% macro button(current_bloc, classes="",html="") %}
     <div class="{{ current_bloc.values.button_align.value }}">
-        <a href="{{ current_bloc.values.button_link.value ?: "#" }}" target="{{ current_bloc.values.button_target.value ?: "_self" }}" style="{{ _self.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {% for class in current_bloc.values.button_classes %}{{ class.value }} {% endfor %} {{ classes }}{% if current_bloc.values.button_custom_classes.value %} {{ current_bloc.values.button_custom_classes.value }}{% endif %}" {{ html }}>
+        <a {{ current_bloc.values.button_link.value ? 'href="'~current_bloc.values.button_link.value~'"': "" }}   target="{{ current_bloc.values.button_target.value ?: "_self" }}" style="{{ _self.getStyles(current_bloc, "button_")|trim }}" class="mt-5 btn {% for class in current_bloc.values.button_classes %}{{ class.value }} {% endfor %} {{ classes }}{% if current_bloc.values.button_custom_classes.value %} {{ current_bloc.values.button_custom_classes.value }}{% endif %}" {{ html }}>
             {% if current_bloc.values.button_logo.value %}
                 <img src="{{ asset(current_bloc.values.button_logo.value) }}" class="me-2">
             {% elseif current_bloc.values.button_icon.value %}
