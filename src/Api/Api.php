@@ -57,12 +57,21 @@ class Api
 		$this->debug = $settings['debug'] ?? null;
 		$this->tempStorage = $settings['tempStorage'] ?? '/tmp/';
 		$this->webRoot = $settings['webRoot'] ?? '/';
-		if (!file_exists($this->tempStorage . '/.htaccess')) {
-			file_put_contents($this->tempStorage . '/.htaccess', "<Files \"*.json\">
+
+
+        if (!is_dir ($this->tempStorage)) {
+            mkdir($this->tempStorage, 0755);
+        }
+
+
+        if (!file_exists($this->tempStorage . '/.htaccess')) {
+            file_put_contents($this->tempStorage . '/.htaccess', "<Files \"*.json\">
     Order Deny,Allow
     Deny from all
 </Files>");
 		}
+
+
 		return $this;
 	}
 
