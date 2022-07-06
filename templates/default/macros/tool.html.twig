@@ -92,15 +92,15 @@
     {% set backgrounds = [] %}
     {% if attribute(element.values, prefix ~ "background_image").value %}
         {% if attribute(element.values, prefix ~ "background_color").value and attribute(element.values, prefix ~ "background_color_alt").value %}
-            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(135deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
         {% elseif attribute(element.values, prefix ~ "background_color").value %}
-            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color").value~" 100%)"]) %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(135deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color").value~" 100%)"]) %}
         {% elseif attribute(element.values, prefix ~ "background_color_alt").value %}
-            {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color_alt").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
+            {% set backgrounds = backgrounds|merge(["linear-gradient(135deg, "~attribute(element.values, prefix ~ "background_color_alt").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
         {% endif %}
         {% set backgrounds = backgrounds|merge(["url("~asset(attribute(element.values, prefix ~ "background_image"))~") center center no-repeat"]) %}
     {% elseif attribute(element.values, prefix ~ "background_color").value and attribute(element.values, prefix ~ "background_color_alt").value %}
-        {% set backgrounds = backgrounds|merge(["linear-gradient(180deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
+        {% set backgrounds = backgrounds|merge(["linear-gradient(135deg, "~attribute(element.values, prefix ~ "background_color").value~" 0%, "~attribute(element.values, prefix ~ "background_color_alt").value~" 100%)"]) %}
     {% elseif attribute(element.values, prefix ~ "background_color").value %}
         {% set backgrounds = backgrounds|merge([attribute(element.values, prefix ~ "background_color").value]) %}
     {% elseif attribute(element.values, prefix ~ "background_color_alt").value %}
