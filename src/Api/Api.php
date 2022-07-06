@@ -572,7 +572,8 @@ class Api
 		}
 
 		$headers = [];
-		$url = 'https://' . $this->client . '.'.$this->domain . $action;
+
+		$url = ($_SERVER["REMOTE_ADDR"] === "127.0.0.1" ? "http" : "https") . '://' . $this->client . '.'.$this->domain . $action;
 		if ($this->token) {
 			$headers = ['token: ' . $this->token];
 		}

@@ -1,15 +1,38 @@
 {% macro buildSection(current_section) %}
-    <div class="s_{{ current_section.unique }} {{ current_section.label ? 's_' ~ current_section.label : ''}}" id="section_{{ current_section.label ? current_section.label : current_section.unique}}" style="{{ _self.getStyles(current_section, "")|trim }}">
-        <div {{ _self.getEditableSection(current_section) }} class="{% for class in current_section.values.classes %}{{ class.value }} {% endfor %}">
 
+
+    {% if current_section.values.shape_top.value %}
+        <div class="position-relative">
+            <div class="shape shape-top shape-fluid-x" style="color:{{ current_section.values.shape_top_color.value ?: "#fff" }};">
+                {% if current_section.values.shape_top.value == "rounded" %}
+                    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2880 0H0V48H720c717.5-52 1440 0 1440 0h720V0Z" fill="currentColor"></path></svg>
+
+                {% elseif current_section.values.shape_top.value == "diagonal-up-2deg" %}
+                    <svg viewBox="0 0 2880 98.11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2160,49.05L720,98.11H0V0H2880V49.05h-720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_top.value == "diagonal-up-5deg" %}
+                    <svg viewBox="0 0 2880 250" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2160,125L720,250H0V0H2880V125h-720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_top.value == "diagonal-up-10deg" %}
+                    <svg viewBox="0 0 2880 508.97" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2160,254.49L720,508.97H0V0H2880V254.49h-720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_top.value == "diagonal-down-2deg" %}
+                    <svg viewBox="0 0 2880 98.11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,49.05V0H2880V98.11h-720L720,49.05H0Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_top.value == "diagonal-down-5deg" %}
+                    <svg viewBox="0 0 2880 250" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,125V0H2880V250h-720L720,125H0Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_top.value == "diagonal-down-10deg" %}
+                    <svg viewBox="0 0 2880 508.97" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,254.49V0H2880V508.97h-720L720,254.49H0Z" fill="currentColor"></path></svg>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="s_{{ current_section.unique }}" style="{{ _self.getStyles(current_section, "")|trim }}" {% if current_section.values.id.label %}id="{{ current_section.values.id.label }}"{% endif %}>
+        <div {{ _self.getEditableSection(current_section) }} class="{% for class in current_section.values.classes %}{{ class.value }} {% endfor %}">
             {% set rowClass = '' %}
             {% if current_section.values.bloc_align %}
-
                 {% for class in current_section.values.bloc_align %}
-
                     {% set rowClass = rowClass ~ " " ~ class.value %}
                 {% endfor %}
             {% endif %}
+
             <div class="row gy-5 rs_{{ current_section.unique }} {{ rowClass }}">
                 {% set columns = current_section.values.columns.value %}
                 {% if columns == "col-3_col-3_col-3_col-3" %}
@@ -26,15 +49,37 @@
                     {% set keyToSearch = key % columnsClasses|length %}
                     {% set columnClass = columnsClasses[keyToSearch] %}
 
-
-
-                    {% if newColumn %}<div class="{{ columnClass }} {{ current_bloc.values.col_classes.value ? " " ~ current_bloc.values.col_classes.value ~" "}} {{ current_bloc.values.slug.value ? "b_" ~ current_bloc.values.slug.value : ''}}">{% endif %}
+                    {% if newColumn %}<div class="{{ columnClass }} {{ current_bloc.values.col_classes.value ? " " ~ current_bloc.values.col_classes.value ~" "}}" {% if current_bloc.values.id.label %}id="{{ current_bloc.values.id.label }}"{% endif %}>{% endif %}
                         {{ include('blocs/' ~ current_bloc.values.type.value ~ '.html.twig', {current_bloc: current_bloc,current_section:current_section}, with_context = true) }}
                     {% if closeColumn %}</div>{% endif %}
+
                 {% endfor %}
             </div>
         </div>
     </div>
+
+    {% if current_section.values.shape_bottom.value %}
+        <div class="position-relative">
+            <div class="shape shape-bottom shape-fluid-x" style="color:{{ current_section.values.shape_bottom_color.value ?: "#fff" }};">
+                {% if current_section.values.shape_bottom.value == "rounded" %}
+                    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 48h2880V0h-720C1442.5 52 720 0 720 0H0v48z" fill="currentColor"></path></svg>
+
+                {% elseif current_section.values.shape_bottom.value == "diagonal-up-2deg" %}
+                    <svg viewBox="0 0 2880 98.11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M720,49.06L2160,0h720V98.11H0V49.06H720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_bottom.value == "diagonal-up-5deg" %}
+                    <svg viewBox="0 0 2880 250" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M720,125L2160,0h720V250H0V125H720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_bottom.value == "diagonal-up-10deg" %}
+                    <svg viewBox="0 0 2880 508.97" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M720,254.49L2160,0h720V508.97H0V254.49H720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_bottom.value == "diagonal-down-2deg" %}
+                    <svg viewBox="0 0 2880 98.11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2880,49.06v49.05H0V0H720l1440,49.06h720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_bottom.value == "diagonal-down-5deg" %}
+                    <svg viewBox="0 0 2880 250" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2880,125v125H0V0H720l1440,125h720Z" fill="currentColor"></path></svg>
+                {% elseif current_section.values.shape_bottom.value == "diagonal-down-10deg" %}
+                    <svg viewBox="0 0 2880 508.97" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2880,254.49v254.49H0V0H720l1440,254.49h720Z" fill="currentColor"></path></svg>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {% macro getStyles(element, prefix) %}
@@ -148,11 +193,19 @@
 {% macro getBlocClasses(current_bloc) %}
 {% for class in current_bloc.values.classes %}{{ class.value }} {% endfor %}{% if current_bloc.values.css_addons.value %} {{ current_bloc.values.css_addons.value  }}{% endif %}
 {% endmacro %}
+
 {% macro getEditMode(current_page,config) %}
     {% if  _session.isEditMode %}
         <link href="{{ asset('assets/backend/editor.css') }}" rel="stylesheet">
         <script type="text/javascript">
-            var editor ={ client : "{{ config.api_client }}", api_domain : "{{ config.api_domain }}", slug: '{{ current_page.editor.slug }}', id:'{{ current_page.editor.id }}',section: '{{ current_page.editor.section }}',edited : '{{ current_page.unique  }}' };
+            var editor = {
+                client: "{{ config.api_client }}",
+                api_domain: "{{ config.api_domain }}",
+                slug: '{{ current_page.editor.slug }}',
+                id: '{{ current_page.editor.id }}',
+                section: '{{ current_page.editor.section }}',
+                edited: '{{ current_page.unique }}'
+            };
         </script>
         <script defer src="{{ asset('assets/backend/editor.js') }}"></script>
     {% endif %}
@@ -160,18 +213,18 @@
 
 {% macro getEditableSection(current_section) %}
     {% if  _session.isEditMode %}
-        data-editor='{"form": "{{ current_section.module.add }}", "module_slug": "{{ current_section.module.slug }}","module_id": "{{ current_section.module.id }}","id":"{{ current_section.unique }}"}'
+        data-editor='{"form":"{{ current_section.module.add }}", "module_slug":"{{ current_section.module.slug }}", "module_id":"{{ current_section.module.id }}", "id":"{{ current_section.unique }}"}'
     {% endif %}
 {% endmacro %}
 
 {% macro getEditableBloc(current_bloc,position="right") %}
     {% if  _session.isEditMode %}
-        data-editor-position="{{ position }}" data-editor='{"module_slug": "{{ current_bloc.module.slug }}","module_id": "{{ current_bloc.module.id }}","id":"{{ current_bloc.unique }}"}'
+        data-editor-position="{{ position }}" data-editor='{"module_slug":"{{ current_bloc.module.slug }}", "module_id":"{{ current_bloc.module.id }}", "id":"{{ current_bloc.unique }}"}'
     {% endif %}
 {% endmacro %}
 
 {% macro getEditable(module,current_bloc) %}
     {% if  _session.isEditMode %}
-        data-editor='{"module_slug": "{{ module.slug }}","module_id": "{{ module.id }}","id":"{{ current_bloc.unique }}"}'
+        data-editor='{"module_slug":"{{ module.slug }}", "module_id":"{{ module.id }}", "id":"{{ current_bloc.unique }}"}'
     {% endif %}
 {% endmacro %}

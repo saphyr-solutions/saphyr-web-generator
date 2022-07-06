@@ -65,11 +65,16 @@ class SaphyrWebGenerator
     {
         session_start();
         $this->config = $config;
-		if($this->config->editor_mode=='sph22') $_SESSION['isEditMode']=true;
-		if($this->config->editor_mode=='Osph22') $_SESSION['isEditMode']=false;
-		if($_SESSION['isEditMode']) {
-			$this->config->api_ttl=5;
-		}
+
+        if ($this->config->editor_mode == 'sph22') {
+            $_SESSION['isEditMode'] = true;
+        } else if ($this->config->editor_mode == 'Osph22') {
+            $_SESSION['isEditMode'] = false;
+        }
+        if ($_SESSION['isEditMode']) {
+            $this->config->api_ttl = $config->api_ttl = 5;
+        }
+
         $this->api = new Api([
             'client' => $config->api_client,
             'domain' => $config->api_domain,
@@ -77,7 +82,7 @@ class SaphyrWebGenerator
             'privKey' => $config->api_private_key,
             'user' => $config->api_user_login,
             'secret' => $config->api_user_secret,
-            'ttl' => isset($_SESSION['isEditMote'])&&$_SESSION['isEditMote']?0:$config->api_ttl,
+            'ttl' => $config->api_ttl,
             'debug' => $config->api_debug,
             'tempStorage' => $config->api_temp_storage,
             'webRoot' => $config->api_temp_storage
