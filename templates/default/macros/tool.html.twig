@@ -85,7 +85,7 @@
 {% macro getStyles(element, prefix) %}
     {% set styles = [] %}
     {% if attribute(element.values, prefix ~ "color").value %}
-        {% set styles = styles|merge(["color: " ~ attribute(element.values, prefix ~ "color").value ~ "!important"]) %}
+        {% set styles = styles|merge(["color: " ~ attribute(element.values, prefix ~ "color").value]) %}
     {% endif %}
 
     {# Background #}
@@ -111,7 +111,12 @@
         {% set styles = styles|merge(["background:" ~ backgrounds|join(", ") ~ "", "background-repeat: no-repeat", "background-size: cover"]) %}
     {% endif %}
 
-    {{ styles|join("; ") }}
+    {% set stylesString = styles|join("!important; ") %}
+    {% set stylesString = stylesString|trim %}
+    {% if stylesString|length > 0 %}
+        {% set stylesString = stylesString ~ "!important" %}
+    {% endif %}
+    {{ stylesString }}
 {% endmacro %}
 
 {% macro img(current_bloc,classes="",html="",params="",maxwidth="") %}
