@@ -373,7 +373,7 @@ class SaphyrWebGenerator
             if (!$context["web"]) {
                 return $this->renderError(404);
             }
-            if (!$context["current_page"]) {
+            if (!$context["current_page"] || array_keys($context["current_page"]) === ["editor"]) {
                 return $this->renderError(404);
                 // TODO si la page n'est pas trouvée, regarder en + si elle existe via l'API
             }
