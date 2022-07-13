@@ -1,6 +1,4 @@
 {% macro buildSection(current_section) %}
-
-
     {% if current_section.values.shape_top.value %}
         <div class="position-relative">
             <div class="shape shape-top shape-fluid-x" style="color:{{ current_section.values.shape_top_color.value ?: "#fff" }};">
@@ -43,17 +41,29 @@
                     {% set columns = columns|replace({"col-": "col-md-"}) %}
                 {% endif %}
                 {% set columnsClasses = columns|split("_") %}
-                {% for key, current_bloc in current_section.blocs %}
-                    {% set newColumn = not current_bloc.values.same_column[0].value %}
-                    {% set closeColumn = not current_section.blocs[key+1].values.same_column[0].value %}
-                    {% set keyToSearch = key % columnsClasses|length %}
-                    {% set columnClass = columnsClasses[keyToSearch] %}
+                {% set totalColumns = columnsClasses|length %}
 
-                    {% if newColumn %}<div class="{{ columnClass }} {{ current_bloc.values.col_classes.value ? " " ~ current_bloc.values.col_classes.value ~" "}}" {% if current_bloc.values.id.label %}id="{{ current_bloc.values.id.label }}"{% endif %}>{% endif %}
-                        {{ include('blocs/' ~ current_bloc.values.type.value ~ '.html.twig', {current_bloc: current_bloc,current_section:current_section}, with_context = true) }}
-                    {% if closeColumn %}</div>{% endif %}
+                {% set columnIndex = 0 %}
+                {% for current_bloc in current_section.blocs %}
+                    {% set inSameColumn = current_bloc.values.same_column[0].value %}
 
+                    {% if loop.first %}
+                        <div class="{{ columnsClasses[0] }}">
+                    {% elseif inSameColumn %}
+                        {# Nothing #}
+                    {% else %}
+                        {% set columnIndex = columnIndex+1 %}
+                        </div>
+                        <div class="{{ columnsClasses[columnIndex % totalColumns] }}">
+                    {% endif %}
+
+                    {{ include('blocs/' ~ current_bloc.values.type.value ~ '.html.twig', {current_bloc: current_bloc,current_section:current_section}, with_context = true) }}
+
+                    {% if loop.last %}
+                        </div>
+                    {% endif %}
                 {% endfor %}
+
             </div>
         </div>
     </div>

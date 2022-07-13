@@ -41,6 +41,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 //        $return[] = new TwigFunction('dump', [$this,"dumpFunction"]);
         $return[] = new TwigFunction('asset', [$this,"assetFunction"]);
         $return[] = new TwigFunction('isHTML', [$this,"isHTML"]);
+        $return[] = new TwigFunction('href', [$this,"href"]);
 
         return $return;
     }
@@ -99,9 +100,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return $return;
     }
 
+	public function href($string) {
+        return SaphyrWebGenerator::getHref($string);
+	}
+
 	public function isHTML($string) {
 		return $string != strip_tags($string) ? true:false;
 	}
+
     /**
      * @param $asset
      * @return string|null

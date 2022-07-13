@@ -1,46 +1,44 @@
 {% macro buildField(field) %}
-
-    <div class="field form-floating mb-3">
-
-
-
-    {% if field.type == "Text" %}
-        <input  class="form-control" {{ field.isRequired ? "required='required'" :'' }} type="text" name="{{ field.name }}" id="{{ field.label }}" />
+    <div class="field mb-3">
+    {% if field.type == "Text" or field.type == "Datalist" %}
+        <input  class="form-control" {{ field.isRequired ? "required='required'" :'' }} type="text" name="{{ field.name }}" id="{{ field.name }}" placeholder="{{ field.label }}" value="{{ _get[field.name] }}">
     {% elseif field.type == "Mail" %}
-        <input class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="email" name="{{ field.name }}" id="{{ field.label }}" />
+        <input class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="email" name="{{ field.name }}" id="{{ field.name }}" placeholder="{{ field.label }}" value="{{ _get[field.name] }}">
+    {% elseif field.type == "Phone" %}
+        <input class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="tel" name="{{ field.name }}" id="{{ field.name }}" placeholder="{{ field.label }}" value="{{ _get[field.name] }}">
     {% elseif field.type == "Number" %}
-        <input  class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="number" name="{{ field.name }}" id="{{ field.label }}" />
+        <input  class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="number" name="{{ field.name }}" id="{{ field.name }}" placeholder="{{ field.label }}" value="{{ _get[field.name] }}">
     {% elseif field.type == "Url" %}
-        <input  class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="url" name="{{ field.name }}" id="{{ field.label }}" />
-    {% elseif field.type == "Longtext" %}
-        <textarea rows="10" style="min-height:120px" class="form-control" {{ field.isRequired ? "required='required'" :'' }} name="{{ field.name }}" id="{{ field.label }}"></textarea>
+        <input  class="form-control"{{ field.isRequired ? "required='required'" :'' }} type="url" name="{{ field.name }}" id="{{ field.name }}" placeholder="{{ field.label }}" value="{{ _get[field.name] }}">
+    {% elseif field.type == "Longtext" or field.type == "LongDatalist" %}
+        <textarea rows="10" style="min-height:120px" class="form-control" {{ field.isRequired ? "required='required'" :'' }} name="{{ field.name }}" id="{{ field.name }}" placeholder="{{ field.label }}">{{ _get[field.name] }}</textarea>
     {% elseif field.type == "Radio" %}
-        {% set nbOptions = field.options|length %}
-        {% for options in field.options %}
-<div class="form-check">
-            <input  class="form-check-input" {{ field.isRequired ? "required='required'" }} type="radio" name="{{ field.name }}" id="{{ field.label }}{{ loop.index }}" value="{{ options.value }}"/>
-    <label class="form-check-label" for="{{ field.label }}{{ loop.index }}">{{ options.label ? options.label : field.label }}</label>
-</div>
-
+        {% if field.label %}
+            <label class="form-label">{{ field.label }}</label>
+        {% endif %}
+        {% for option in field.options %}
+            <div>
+                <input {{ field.isRequired ? "required='required'" }} {% if _get[field.name] == option.value %}checked{% endif%} type="radio" name="{{ field.name }}" id="{{ field.label }}{{ loop.index }}" value="{{ option.value }}">
+                <label for="{{ field.label }}{{ loop.index }}">{{ option.label ? option.label : field.label }}</label>
+            </div>
         {% endfor %}
-
+    {% elseif field.type == "Checkbox" %}
+        {% if field.label %}
+            <label class="form-label">{{ field.label }}</label>
+        {% endif %}
+        {% for option in field.options %}
+            <div>
+                <input {% if option.value in _get[field.name] %}checked{% endif%} type="checkbox" name="{{ field.name }}[]" id="{{ field.label }}{{ loop.index }}" value="{{ option.value }}">
+                <label for="{{ field.label }}{{ loop.index }}">{{ option.label ? option.label : field.label }}</label>
+            </div>
+        {% endfor %}
     {% elseif field.type == "Select" %}
-        <select class="form-select" {{ field.isRequired ? "required='required'" :'' }} name="{{ field.name }}" id="{{ field.label }}">
-            <option></option>
+        <select class="form-select" {{ field.isRequired ? "required='required'" :'' }} name="{{ field.name }}" id="{{ field.name }}">
+            <option disabled selected hidden>{{ field.label }}</option>
             {% for option in field.options %}
-            <option value="{{ option.value }}">{{ option.label }}</option>
+                <option value="{{ option.value }}" {% if _get[field.name] == option.value %}selected{% endif%}>{{ option.label }}</option>
             {% endfor %}
         </select>
-        {% endif %}
-        {% if field.type != "Radio" %}
-        <label   for="{{ field.name }}">{{ field.placeholder ? field.placeholder : field.label }}</label>
-        {% endif %}
-{#<pre>{{ dump(field) }}</pre>#}
-    </div>
-{% endmacro %}
-
-{% macro sendButton(form) %}
-    <div class="field mb-3 text-end">
-        <button class="btn btn-success" type="submit">{{ form.button_label ? form.button_label|raw : "Valider" }}</button>
+    {% endif %}
     </div>
 {% endmacro %}

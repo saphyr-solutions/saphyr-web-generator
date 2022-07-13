@@ -1,35 +1,49 @@
-{% macro drawSubmenu(page,current_page) %}
+{% import "/macros/tool.html.twig" as macros %}
 
-
-    {% if page.haveSubmenu %}
-        <ul class="dropdown-menu ps-sm-4" aria-labelledby="navbar_{{ page.id }}">
-            {% if page.visible%}
-            {% if page.values.url.value !='#' %}
-            <li class="dropdown-item">
-                <a class="dropdown-link  {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
-
-                   href="/{{ page.values.url.value }}">{{ page.values.menu.value }}</a>
-
+{% macro drawSubmenu(page,current_page,level) %}
+    {% if page.childrens|length > 0 %}
+        {% if level > 1 %}
+            <div class="dropdown-menu ps-sm-4">
+                {% if page.values.url.value != '#' %}
+                    <a class="dropdown-item  {% if page.values.url.value == current_page.values.url.value %}active{% endif %}" href="{{ href(page.values.url.value)|spaceless }}"{% if page.values.target.value %} target="{{ page.values.target.value }}"{% endif %}>{{ page.values.menu.value }}</a>
                 {% endif %}
-            </li>
-            {% for page in page.submenu %}
-                {%if page.visible %}
-                <li class="dropdown-item dropend">
-                    <a class="{% if page.values.url.value == current_page.values.url.value %}active {% endif %}dropdown-link {{ page.haveSubmenu ? 'dropdown-toggle':'' }}" {{ page.haveSubmenu ? 'data-bs-toggle="dropdown"':'' }}
-                       href="/{{ page.values.url.value }}">
+
+                {% for page in page.childrens %}
+                    <a class="{% if page.values.url.value == current_page.values.url.value %}active{% endif %} dropdown-item {{ page.childrens|length ? 'dropdown-toggle':'' }}" {{ page.childrens|length ? 'data-bs-toggle="dropdown" aria-expanded="false"':'' }}
+                       href="{{ href(page.values.url.value)|spaceless }}"{% if page.values.target.value %} target="{{ page.values.target.value }}"{% endif %}>
                         {{ page.values.menu.value }}
                     </a>
-                    {% if page.haveSubmenu %}
-                        {{ _self.drawSubmenu(page,current_page) }}
+                    {% if page.childrens|length > 0 %}
+                        {% set level = level+1 %}
+                        {{ _self.drawSubmenu(page,current_page,level) }}
                     {% endif %}
-                </li>
+                {% endfor %}
+            </div>
+        {% else %}
+            <ul class="dropdown-menu ps-sm-4" aria-labelledby="navbar_{{ page.id }}">
+                {% if page.values.url.value != '#' %}
+                    <li class="dropdown-item">
+                        <a class="dropdown-link  {% if page.values.url.value == current_page.values.url.value %}active{% endif %}" href="{{ href(page.values.url.value)|spaceless }}"{% if page.values.target.value %} target="{{ page.values.target.value }}"{% endif %}>{{ page.values.menu.value }}</a>
+                    </li>
                 {% endif %}
-            {% endfor %}
-            {% endif %}
-        </ul>
-    {% else %}
+
+                {% for page in page.childrens %}
+                    <li class="dropdown-item {{ page.childrens|length > 0 ? 'dropend' : '' }}">
+                        <a class="{% if page.values.url.value == current_page.values.url.value %}active{% endif %} dropdown-link {{ page.childrens|length ? 'dropdown-toggle':'' }}" {{ page.childrens|length ? 'data-bs-toggle="dropdown" aria-expanded="false"':'' }}
+                           href="{{ href(page.values.url.value)|spaceless }}"{% if page.values.target.value %} target="{{ page.values.target.value }}"{% endif %}>
+                            {{ page.values.menu.value }}
+                        </a>
+                        {% if page.childrens|length > 0 %}
+                            {% set level = level+1 %}
+                            {{ _self.drawSubmenu(page,current_page,level) }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     {% endif %}
 {% endmacro %}
+
 <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-white">
     <div class="container">
         {% if current_page.values.logo.value %}
@@ -49,21 +63,17 @@
                 <i class="fe fe-x"></i>
             </button>
             <ul class="navbar-nav ms-auto">
-                {% for page in menu %}
-                    {% if page.visible%}
-                    <li class="nav-item {{ page.haveSubmenu ? 'dropdown':'' }}">
-                        <a class="nav-link  {{ page.haveSubmenu ? 'dropdown-toggle':'' }} {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
-                                {% if page.haveSubmenu %}
-                                    id="navbar_{{ page.id }}" data-bs-toggle="dropdown" href="{{ page.values.url.value ? '/' ~ page.values.url.value:'#'}}" aria-haspopup="true" aria-expanded="false"
-                                {% endif %}
-                           href="/{{ page.values.url.value }}">{{ page.values.menu.value }}</a>
-                        {% if page.haveSubmenu %}
-
-                            {{ _self.drawSubmenu(page,current_page) }}
-
+                {% for page in menus.nav %}
+                    <li class="nav-item {{ page.childrens|length > 0 ? 'dropdown' : '' }}">
+                        <a class="nav-link  {{ page.childrens|length > 0 ? 'dropdown-toggle' : '' }} {% if page.values.url.value == current_page.values.url.value %}active{% endif %}"
+                            {% if page.childrens|length > 0 %}
+                                id="navbar_{{ page.id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            {% endif %}
+                            href="{{ href(page.values.url.value)|spaceless }}"{% if page.values.target.value %} target="{{ page.values.target.value }}"{% endif %}>{{ page.values.menu.value }}</a>
+                        {% if page.childrens|length > 0 %}
+                            {{ _self.drawSubmenu(page,current_page,1) }}
                         {% endif %}
                     </li>
-                    {% endif %}
                 {% endfor %}
             </ul>
         </div>

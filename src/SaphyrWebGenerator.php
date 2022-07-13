@@ -89,14 +89,12 @@ class SaphyrWebGenerator
         ]);
         $this->api->getToken();
 
-
         $this->web = $this->getWeb(true);
         $this->page_module_id = $this->getPageModuleId(true);
         $this->section_module_id = $this->getSectionModuleId(true);
         $this->bloc_module_id = $this->getBlocModuleId(true);
         $this->request_uri = $this->getRequestUri();
         $this->request_page_type = $this->getRequestPageType(true);
-
     }
 
     /**
@@ -239,117 +237,94 @@ class SaphyrWebGenerator
         return $this->bloc_module_id;
     }
 
-	public function handleXHR() {
-		if($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST)) {
-			$datas = $_POST;
-			if (isset($datas['form']) && isset($datas['formId'])) {
-				$formModule = $this->api->getModuleInfos($datas['form']);
-				$module_forms = array_filter($formModule['module_forms'],function($e) use($datas) {
-					return $e['id']==$datas['formId'];
-				});
-				if($module_forms) {
-					$module_forms = array_shift($module_forms);
-					unset($module_forms['config']);
-					$formConfig = $this->api->getModuleElementformConfigFields($datas['form'], $datas['formId']);
-					$result = $this->api->addElement($datas['form'], $datas);
-					$return = ['result' => $result ? 'success':'error'];
-					$return = array_merge($return, $module_forms);
-					echo json_encode($return);
-					exit();
-				}
-			}
-		}
-	}
-
-
 	/**
 	 * Build sitemap.xml if new content added
 	 * @param $context
 	 * @return void
 	 * @throws \Exception
 	 */
-	protected function refreshSitemap($context) {
+    protected function refreshSitemap($context)
+    {
+        $path = './sitemap.xml';
+        $updateSitemap = false;
 
+        // Trouver les modules qui sont dispo sur le site
+        $modulesIdsWithPages = [$this->getPageModuleId()];
+        $allBlocs = $this->api->getModuleElements($this->getBlocModuleId())["results"];
+        foreach ($allBlocs as $bloc) {
+            $loadFromId = (int)$bloc["values"]["load_from"]["value"];
+            if ($loadFromId && !in_array($loadFromId, $modulesIdsWithPages)) {
+                $modulesIdsWithPages[] = $loadFromId;
+            }
+        }
 
-		$lastPageMod='';
-		$dates = array_column($context['menu'], 'modification_date');
-		if($dates && is_array($dates)) {
-			$dates = array_map(function ($e) {
-				return strtotime($e);
-			}, $dates);
-			rsort($dates);
-			$lastPageMod = array_shift($dates);
-		}
-		$webLastMod = strtotime($context['web']['modification_date']);
-		$webLastMod = max($webLastMod,$lastPageMod);
-		$path = './sitemap.xml';
-		$update_sitemap = false;
+        if (!file_exists($path)) {
+            $updateSitemap = true;
+        } else {
+            // Trouver les date de modification des modules dispo sur le site
+            $modificationsDates = [];
+            foreach ($modulesIdsWithPages as $moduleIdWithPage) {
+                $moduleInfos = $this->api->getModuleInfos($moduleIdWithPage);
+                $modificationsDates[] = strtotime($moduleInfos['modification_date']);
+            }
+            $modificationsDates[] = strtotime($context["web"]["modification_date"]);
+            rsort($modificationsDates);
 
-		if (!file_exists($path)) {
-			$update_sitemap=true;
-		}
-		elseif (!filesize($path)) {
-			$update_sitemap=true;}
-		else {
-			$lastMod = filemtime($path);
-			if($webLastMod<0 ||$lastMod<0) { $update_sitemap=true;}
-			else {
-				if($lastMod<$webLastMod) $update_sitemap=true;
-			}
-		}
+            $sitemapModificationDate = filemtime($path);
+            if ($modificationsDates[0] > $sitemapModificationDate) {
+                $updateSitemap = true;
+            }
+        }
 
-		if($update_sitemap) {
-			$web = $context['web']['values'];
-			$domainURL =$web['domaine-principal-pour-information']['value'];
-			if(!$domainURL) {
-				$web = $this->getWeb()['values'];
-				$force_www = isset($web['force_www']) && $web['force_www'];
-				$force_https = isset($web['force_https']) && $web['force_https'];
-				$redirect = $_SERVER["SERVER_NAME"];
+        if ($updateSitemap) {
+            if ($context["web"]["values"]["domain_name"]["value"]) {
+                $domainURL = $context["web"]["values"]["domain_name"]["value"];
+            } else {
+                $domainURL = (self::_isHttps() ? "https" : "http") . "://" . $_SERVER["SERVER_NAME"];
+            }
 
-				if ($force_www && substr($_SERVER["SERVER_NAME"], 0, 4) !== "www.") {
-					$redirect = "www." . $redirect;
+            $xml = new \XMLWriter();
+            $xml->openMemory();
+            $xml->startDocument("1.0", 'UTF-8');
+            $xml->startElement("urlset");
+            $xml->writeAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+            $xml->endAttribute();
 
-				}
-				if ($force_https ) {
-					$redirect = "https://" . $redirect;
-				}	 else {
-					$redirect = "http://".$redirect;
-				}
-				$domainURL=$redirect."/";
-			}
-			$domainURL=rtrim($domainURL,'/').'/';
-			$xml = new \XMLWriter();
-			$xml->openMemory();
+            foreach ($modulesIdsWithPages as $moduleIdWithPage) {
+                $allPages = $this->api->getModuleElements($moduleIdWithPage)["results"];
+                $allPages = $this->filterElements($allPages, false);
+                foreach ($allPages as $page) {
+                    $values = $page['values'];
+                    $url = self::getHref($values['url']['value']);
+                    if (substr($url, 0, 1) !== "/") {
+                        continue;
+                    }
+                    $url = explode("#", $url, 2)[0];
 
-			$xml->startDocument("1.0",'UTF-8');
-			$xml->startElement("urlset");
-			$xml->startAttribute('xmlns',"http://www.sitemaps.org/schemas/sitemap/0.9");
-			$xml->writeAttribute('xmlns','http://www.sitemaps.org/schemas/sitemap/0.9');
-			$xml->endAttribute();
+                    if ($moduleIdWithPage === $this->getPageModuleId()) {
+                        $fullUrl = $domainURL . $url;
+                    } else {
+                        $moduleSlug = $this->api->getModuleInfos($moduleIdWithPage)["slug"];
+                        $fullUrl = $domainURL . "/" . $moduleSlug . $url;
+                    }
 
+                    $xml->startElement('url');
+                    $xml->startElement('loc');
+                    $xml->text($fullUrl);
+                    $xml->endElement();
+                    $xml->startElement('lastmod');
+                    $xml->text((new \DateTime($page['modification_date']))->format("c"));
+                    $xml->endElement();
+                    $xml->endElement();
+                }
+            }
 
-			$pages = array_filter($context['menu'],function($item) { return $item['values']['status']['value']=='online';});
-			if($pages) {
-				foreach($pages as $page) {
-					$values = $page['values'];
-					$ts = strtotime($page['modification_date']);
+            $xml->endElement();
+            $sitemap = $xml->outputMemory();
+            file_put_contents($path, $sitemap);
+        }
+    }
 
-					$xml->startElement('url');
-					$xml->startElement('loc');
-					$xml->text($domainURL.$values['url']['value']);
-					$xml->endElement();
-					$xml->startElement('lastmod');
-					$xml->text(gmdate("Y-m-d", $ts) .'T'. gmdate("H:m:s", $ts) . '+01:00');
-					$xml->endElement();
-					$xml->endElement();
-				}
-			}
-			$xml->endElement();
-			$sitemap = $xml->outputMemory();
-			file_put_contents($path, $sitemap);
-		}
-	}
     /**
      * Load and return current page
      *
@@ -358,10 +333,7 @@ class SaphyrWebGenerator
     public function render()
     {
         try {
-
 			$this->redirectHttpsWww();
-			$this->handleXHR();
-
 
             $this->compilScss();
 
@@ -369,10 +341,12 @@ class SaphyrWebGenerator
             $pageType = $this->getRequestPageType();
 
             $context = $this->getTwigContext();
-			$this->refreshSitemap($context);
             if (!$context["web"]) {
                 return $this->renderError(404);
             }
+
+            $this->refreshSitemap($context);
+
             if (!$context["current_page"] || array_keys($context["current_page"]) === ["editor"]) {
                 return $this->renderError(404);
                 // TODO si la page n'est pas trouvée, regarder en + si elle existe via l'API
@@ -430,13 +404,45 @@ class SaphyrWebGenerator
     }
 
     /**
+     * @param $url
+     * @return mixed|string
+     */
+    public static function getHref($url) {
+        if (substr($url, 0, 8) === "https://") {
+            $return = $url;
+        } elseif (substr($url, 0, 7) === "http://") {
+            $return = $url;
+        } elseif (substr($url, 0, 4) === "tel:") {
+            $return = $url;
+        } elseif (substr($url, 0, 7) === "mailto:") {
+            $return = $url;
+        } elseif (substr($url, 0, 1) === "#") {
+            $return = $url;
+        } elseif (substr($url, 0, 1) === "/") {
+            $return = $url;
+        } else {
+            $return = "/" . $url;
+        }
+
+        return $return;
+    }
+
+    /**
      * @param int $code
      * @return mixed
      */
     protected function renderError($code = 404, $message = "Page not found")
     {
         http_response_code($code);
-        return $this->getTwigEnvironment()->render('error.html.twig', ["code" => $code, "message" => $message]);
+
+        if (isset($_POST["action"])) {
+            die(json_encode(["error" => [
+                "code" => $code,
+                "message" => $message
+            ]]));
+        } else {
+            return $this->getTwigEnvironment()->render('error.html.twig', ["code" => $code, "message" => $message]);
+        }
     }
 
     /**
@@ -446,7 +452,35 @@ class SaphyrWebGenerator
     protected function handlePostDatas($page)
     {
         $datas = $_POST;
-        if (isset($datas["password"])) {
+
+        if (isset($datas["action"])) {
+            $method = $datas["method"];
+            $action = $datas["action"];
+            $signature = $datas["signature"];
+
+            unset($datas["method"]);
+            unset($datas["action"]);
+            unset($datas["signature"]);
+
+            // check signature
+            $signatureParts = [$method, $action];
+            sort($signatureParts);
+
+            $realSignature = hash_hmac("sha256", implode("+", $signatureParts), $this->api->getPrivateKey());
+            if ($realSignature !== $signature) {
+                throw new \Exception("Are you a robot ?", 500);
+            } else {
+                // Handle form
+                $call = $this->api->callEndpoint($action, $method, $datas);
+                if ($call) {
+                    die(json_encode([
+                        "success" => true
+                    ]));
+                } else {
+                    throw new \Exception("An error occured", 500);
+                }
+            }
+        } else if (isset($datas["password"])) {
             // Verify page password
             $isValid = $this->api->isValid($this->getRequestPageModuleId(), $page["unique"], ["password" => $datas["password"]]);
             if ($isValid["isValid"]["password"]) {
@@ -458,10 +492,29 @@ class SaphyrWebGenerator
                 $this->reload(["errors" => ["password" => "no_allowed"]]);
             }
         }
-		if(isset($datas['form']) && isset($datas['formId'])) {
-			$this->api->addElement($datas['form'], $datas);
-			$this->reload();
-		}
+    }
+
+    /**
+     * @return void
+     */
+    public function handleXHR()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST)) {
+            $datas = $_POST;
+            if (isset($datas['form']) && isset($datas['formId'])) {
+                $formModule = $this->api->getModuleInfos($datas['form']);
+                $module_forms = array_filter($formModule['module_forms'], function ($e) use ($datas) {
+                    return $e['id'] == $datas['formId'];
+                });
+                if ($module_forms) {
+                    $module_forms = array_shift($module_forms);
+                    $result = $this->api->addElement($datas['form'], $datas);
+                    $return = ['result' => ($result ? 'success' : 'error')];
+                    echo json_encode($return);
+                    exit();
+                }
+            }
+        }
     }
 
     /**
@@ -485,7 +538,7 @@ class SaphyrWebGenerator
     {
         $return = false;
 
-        if (isset($page["password"]) && $page["password"]) {
+        if (isset($page["values"]["password"]) && $page["values"]["password"]["value"]) {
             if (isset($_SESSION["allowed_pages"][$page["unique"]])) {
                 // check secured time
                 $sessionTime = $_SESSION["allowed_pages"][$page["unique"]];
@@ -522,104 +575,102 @@ class SaphyrWebGenerator
         return $this->web;
     }
 
-	private function getFooterMenus() {
-		$all = $this->api->getModuleElements($this->getPageModuleId())["results"];
-		$pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
-
-		$return = null;
-		if($pages && count($pages)) {
-			$pages = array_filter($pages,function($page) {
-				return is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"]) && $page["values"]["status"]["value"]=="online";
-			});
-
-			if($pages && count($pages)) {
-				$return = [];
-				foreach($pages as $page) {
-
-					$children = $this->getChildrens($page,"footer");
-					$page['show_in']= null;
-
-					if(is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"])) {
-						$page['show_in'] = array_column($page["values"]["afficher-aussi-dans"], 'value');
-					}
-					$page['visible']= $page["values"]["in_menu"]["value"];
-					$page['submenu'] = $children ? $children : null;
-					$page['haveSubmenu'] = $children && count($children) ? true:false;
-					$return[]=$page;
-				}
-			}
-		}
-		return $return;
-	}
     /**
-     * @return array|mixed
+     * @return array
      * @throws \Exception
      */
-    private function getMenu()
+    private function getMenus()
     {
         $all = $this->api->getModuleElements($this->getPageModuleId())["results"];
-        $pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
+        $allPages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
+        $allPagesArbo = [];
+        $return = [];
 
-		$return = null;
-		if($pages && count($pages)) {
+        // Créer une arborescence de base avec toutes les pages, peu importe l'emplacement
+        $firstLevelPages = array_filter($allPages,function($page) {
+            return !$page["values"]["parent_page"]["value"];
+        });
+        foreach($firstLevelPages as $page) {
+            $page["childrens"] = $this->getPageChildrens($allPages, $page);
+            $allPagesArbo[] = $page;
+        }
 
+        // Trouver les emplacement disponible
+        $allShowIn = ["nav"];
+        foreach ($allPages as $page) {
+            if (is_array($page["values"]["show_in"])) {
+                foreach ($page["values"]["show_in"] as $showIn) {
+                    $allShowIn[] = $showIn["value"];
+                }
+            }
+        }
+        $allShowIn = array_unique($allShowIn);
 
-			$pages = array_filter($pages,function($page) {
-//				return $page["values"]["in_menu"]["value"] && !$page["values"]["parent-page"]["value"];
-				return  $page["values"]["status"]["value"]=="online" && !$page["values"]["parent-page"]["value"];
-			});
-
-			if($pages && count($pages)) {
-				$return = [];
-				foreach($pages as $page) {
-
-					$children = $this->getChildrens($page);
-					$page['show_in']= null;
-
-					if(is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"])) {
-						$page['show_in'] = array_column($page["values"]["afficher-aussi-dans"], 'value');
-					}
-					$page['visible']= $page["values"]["in_menu"]["value"];
-					$page['submenu'] = $children ? $children : null;
-					$page['haveSubmenu'] = $children && count($children) ? true:false;
-					$return[]=$page;
-				}
-			}
-
-		}
-
+        // Ajouter dans l'arborscence de base dans les emplacements
+        // Et trier les pages qui sont à afficher seulement dans cet emplacement
+        foreach ($allShowIn as $showIn) {
+            $finalArbo = [];
+            $this->filterArboMenuPages($finalArbo, $allPagesArbo, $showIn);
+            $return[$showIn] = $finalArbo;
+        }
 
 		return $return;
     }
 
-	private function getChildrens($current_page,$whereLoc="header") {
+    /**
+     * @param array $finalArbo
+     * @param array $allPagesArbo
+     * @param string $showIn
+     * @return void
+     */
+    private function filterArboMenuPages(&$finalArbo, $allPagesArbo, $showIn)
+    {
+        foreach ($allPagesArbo as $page) {
+            $childrens = $page["childrens"];
+            $page["childrens"] = [];
 
+            $isValid = false;
+            if ($showIn === "nav") {
+                if ($page["values"]["in_menu"]["value"]) {
+                    $isValid = true;
+                }
+            } else {
+                $allPageShowIn = [];
+                if (is_array($page["values"]["show_in"])) {
+                    foreach ($page["values"]["show_in"] as $pageShowIn) {
+                        $allPageShowIn[] = $pageShowIn["value"];
+                    }
+                }
+                if (in_array($showIn, $allPageShowIn)) {
+                    $isValid = true;
+                }
+            }
 
-		$all = $this->api->getModuleElements($this->getPageModuleId())["results"];
-		$pages = $this->filterElements($all, $this->getWeb()["values"]["pages"]);
-		$return = null;
-		if($pages && count($pages)) {
-			$pages = array_filter($pages, function ($page) use ($current_page,$whereLoc) {
-				if($whereLoc=="footer") {
-					return  $page["values"]["status"]["value"]=="online" && is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"]) && $page["values"]["parent-page"]["value"] == $current_page["unique"];
-				}
-				else return  $page["values"]["status"]["value"]=="online" && $page["values"]["in_menu"]["value"] && $page["values"]["parent-page"]["value"] == $current_page["unique"];
-			});
-			if ($pages && count($pages)) {
+            if ($isValid) {
+                $this->filterArboMenuPages($page["childrens"], $childrens, $showIn);
+                $finalArbo[] = $page;
+            } else {
+                $this->filterArboMenuPages($finalArbo, $childrens, $showIn);
+            }
+        }
+    }
+
+    /**
+     * @param $allPages
+     * @param $page
+     * @return array
+     */
+	private function getPageChildrens($allPages, $currentPage)
+    {
         $return = [];
-        foreach ($pages as $page) {
-					$children = $this->getChildrens($page);
-			$page['show_in']= [];
-			if(is_array($page["values"]["afficher-aussi-dans"]) && count($page["values"]["afficher-aussi-dans"])) {
-				$page['show_in'] = array_column($page["values"]["afficher-aussi-dans"], 'value');
-			}
-			$page['visible']= $page["values"]["in_menu"]["value"];
-					$page['submenu'] = $children ? $children : null;
-					$page['haveSubmenu'] = $children && count($children) ? true:false;
+
+        foreach ($allPages as $page) {
+            if ($page["values"]["parent_page"]["value"] === $currentPage["unique"]) {
+                $page["childrens"] = $this->getPageChildrens($allPages, $page);
                 $return[] = $page;
             }
         }
-		}
+
         return $return;
     }
 
@@ -706,51 +757,38 @@ class SaphyrWebGenerator
 		$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
 
 		foreach ($return as $key => $bloc) {
-			if($bloc['values']['formId']['value']) {
-				$return[$key]['values']['type']['value']='form';
-				$vals = explode('|',$bloc['values']['formId']['value']);
-				if($vals && count($vals)==2) {
-					$miniFormId=$vals[1];
-					$formModule = $this->api->getModuleInfos($vals[0]);
-					$formConfig = $this->api->getModuleElementformConfigFields($vals[0],$vals[1]);
-					if(isset($formConfig['components'])) {
-						// Rewrite des datas reçues
 
-						$component = array_filter($formConfig['components'],function($e) { return $e['type']=='Panel';});
-						if($component) {
-							$component = array_shift($component);
+            // Handle form
+            if ($bloc['values']['form_id']['value']) {
+                $return[$key]['values']['type']['value'] = 'form';
+                $vals = explode('|', $bloc['values']['form_id']['value']);
+                if ($vals && count($vals) == 2) {
+                    $miniFormId = (int)$vals[1];
+                    $miniFormModuleId = (int)$vals[0];
 
-							$module_forms = array_filter($formModule['module_forms'],function($e) use($miniFormId) {
-								return $e['id']==$miniFormId;
-							});
-							if($module_forms) {
-								$module_forms = array_shift($module_forms);
-								unset($module_forms['config']);
-							}
+                    $formConfig = $this->api->getModuleElementFormConfig($miniFormModuleId, $miniFormId);
 
-							$formDatas =
-							array_merge($module_forms,
-								[
-									'submitButtonLabel' => $formConfig['submitButtonLabel'],
-									'moduleId' => $vals[0],'miniFormId' => $vals[1],'action' => $formConfig['action'],'method' => $formConfig['method']]);
-
-							$fields = array_filter($component['components'],function($e) { return $e['type']=='Tabs';});
-
-							if($fields && is_array($fields)) {
-
-								$fields = array_shift($fields);
-								$fields = array_filter($fields['components'],function($e) { return $e['type']=='Tab';});
-
-								$formDatas['slug'] =isset($fields[0]['slug'])?$fields[0]['slug']:null;
-								$formDatas['fields']=$fields[0]['components'];
-								$return[$key]['form']=$formDatas;
-
-							}
-						}
-					}
-				}
-
-			}
+                    if (isset($formConfig['components'])) {
+                        // Remove Panel, Tabs and Tab (Keep field only)
+                        $fields = [];
+                        foreach ($formConfig['components'] as $panel) {
+                            foreach ($panel['components'] as $tabs) {
+                                foreach ($tabs['components'] as $tab) {
+                                    foreach ($tab['components'] as $field) {
+                                        $fields[] = $field;
+                                    }
+                                }
+                            }
+                        }
+                        if ($fields) {
+                            // Write signature
+                            $formConfig['fields'] = $fields;
+                            $formConfig['signature'] = $this->getSignatureFromFormConfig($formConfig);
+                            $return[$key]['form'] = $formConfig;
+                        }
+                    }
+                }
+            }
 
             if ($bloc["values"]["load_from"]["value"]) {
 				$moduleSrcID = $bloc["values"]["load_from"]["value"];
@@ -796,22 +834,32 @@ class SaphyrWebGenerator
     }
 
     /**
+     * @param $formConfig
+     * @return string
+     */
+    private function getSignatureFromFormConfig($formConfig)
+    {
+        $signatureParts = [$formConfig["action"], $formConfig["method"]];
+        sort($signatureParts);
+
+        return hash_hmac("sha256", implode("+", $signatureParts), $this->api->getPrivateKey());
+    }
+
+    /**
      * @return array
      * @throws \Exception
      */
     private function getTwigContext(): array
     {
         $web = $this->getWeb();
-        $menu = $this->getMenu();
-		$footerMenu = $this->getFooterMenus();
+        $menus = $this->getMenus();
         $currentPage = $this->getCurrentPage();
 
         $moduleId = $this->getRequestPageModuleId();
 		$module = $this->api->getModuleInfos($moduleId);
         return [
             "web" => $web,
-            "menu" => $menu,
-			"footer_menu" => $footerMenu,
+            "menus" => $menus,
 			"moduleId" => $moduleId,
 			"module" => $module,
 			"config" => $this->config,

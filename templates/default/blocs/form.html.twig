@@ -2,17 +2,17 @@
 {% import "/macros/formbuilder.html.twig" as formbuilder %}
 
 <div class="{{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }} data-aos="fade-up" data-aos-delay="200">
-    <form onsubmit="event.preventDefault();return false;" class="form-horizontal" data-method="{{ current_bloc.form.method }}" >
+    <form class="form-horizontal" data-succes-message="{{ current_bloc.values.form_success_message.value }}" data-redirect="{{ current_bloc.values.form_redirect.value }}">
+        <input type="hidden" name="signature" value="{{ current_bloc.form.signature }}">
+        <input type="hidden" name="action" value="{{ current_bloc.form.action }}">
+        <input type="hidden" name="method" value="{{ current_bloc.form.method }}">
 
-        <input type="hidden" name="form" value="{{ current_bloc.form.moduleId }}" />
-        <input type="hidden" name="formId" value="{{ current_bloc.form.miniFormId }}" />
-    {% for field in current_bloc.form.fields %}
-        {{ formbuilder.buildField(field) }}
-    {% endfor %}
-        {{ formbuilder.sendButton(current_bloc.form) }}
-{#        <pre>#}
-{#            {{ dump(current_bloc.form) }}#}
-{#        </pre>#}
+        {% for field in current_bloc.form.fields %}
+            {{ formbuilder.buildField(field) }}
+        {% endfor %}
+
+        <div class="field mb-3 text-end">
+            <button class="btn btn-success" type="submit">{{ current_bloc.form.submitButtonLabel ? current_bloc.form.submitButtonLabel|raw : "Valider" }}</button>
+        </div>
     </form>
-
 </div>

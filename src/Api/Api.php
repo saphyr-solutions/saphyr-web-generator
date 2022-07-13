@@ -105,11 +105,21 @@ class Api
 		return $this;
 	}
 
+    public function getPublicKey()
+    {
+        return $this->pubKey;
+    }
+
 	public function setPrivateKey($key)
 	{
 		$this->private = $key;
 		return $this;
 	}
+
+    public function getPrivateKey()
+    {
+        return $this->private;
+    }
 
 	public function setToken($token)
 	{
@@ -331,20 +341,6 @@ class Api
 	}
 
 
-	public function getModuleElementformConfigFields($moduleId, $miniFormId = 0)
-	{
-
-		try {
-			$formData = $this->getModuleElementformConfig($moduleId, $miniFormId);
-			if ($formData) {
-				return $formData;
-			}
-		} catch (\Exception $e) {
-			die($e->getMessage());
-		}
-	}
-
-
 	public function getMedia($array, $params = null)
 	{
 
@@ -439,6 +435,16 @@ class Api
 			die($e->getMessage());
 		}
 	}
+
+    public function callEndpoint($endpoint, $method, $datas)
+    {
+        try {
+            $result = $this->call($endpoint, $method, $datas);
+            return $result;
+        } catch (\Exception $e) {
+            die($e->getMessage());
+        }
+    }
 
 	/**
 	 * Save content to Saphyr cache
@@ -605,7 +611,7 @@ class Api
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		}
 		if (in_array($method, ['POST', 'PUT'])) {
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
 		}
 		if (in_array($method, ['DELETE'])) {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
@@ -671,7 +677,7 @@ class Api
 		}
 
 		$signContent .= $this->token;
-		$signContent .= "+" . $action;
+		$signContent .= "+" . explode("?", $action, 2)[0];
 
 		$sign = hash_hmac("sha256", $signContent, $this->private);
 		return $sign;

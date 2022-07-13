@@ -1,0 +1,23 @@
+{% import "/macros/tool.html.twig" as macros %}
+
+<div class="select_card select_card card shadow-light-lg mb-2 me-2 float-md-start {{ macros.getBlocClasses(current_bloc) }}" style="{{ macros.getStyles(current_bloc, "")|trim }}" {{ macros.getEditableBloc(current_bloc) }}>
+    <div class="card-body py-3 px-4">
+        <!-- Icon -->
+        {% if current_bloc.values.icon_icon.value or current_bloc.values.icon_logo.value %}
+            <div class="mb-0 me-3">{{ macros.icon(current_bloc) }}</div>
+        {% endif %}
+        <div>
+            {% if current_bloc.values.title.value %}
+                {{ macros.header(current_bloc, current_bloc.values.header_size.value ?: 5, "card-title mb-3") }}
+            {% endif %}
+            {% if current_bloc.values.text.value %}
+                <div class="card-subtitle mb-0 text-muted h6" style="{{ macros.getStyles(current_bloc, "text_")|trim }}">
+                    {{ current_bloc.values.text.value|snl2br|raw }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" data-select_card_checkbox="{{ current_bloc.values.id.value ? current_bloc.values.id.value : current_bloc.unique }}" type="checkbox">
+        </div>
+    </div>
+</div>
