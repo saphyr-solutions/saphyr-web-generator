@@ -163,8 +163,10 @@
     <div class="{% for class in current_bloc.values.icon_classes %}{{ class.value }} {% endfor %} {{ classes }}">
         {% set elementAttr = 'class="icon-circle bg-primary text-white" style="'~_self.getStyles(current_bloc, "icon_")|trim~'"' %}
         {% set elementIcon = '<i class="'~current_bloc.values.icon_icon.value~' fa-lg"></i>' %}
+
         {% if current_bloc.values.icon_logo.value %}
             {% set elementIcon = '<img src="'~asset(current_bloc.values.icon_logo)~'" style="width:2.5rem; height:2.5rem; object-fit:contain;">' %}
+            {% set elementAttr = 'class="icon-circle text-white" style="'~_self.getStyles(current_bloc, "icon_")|trim~'"' %}
         {% endif %}
 
         {% if current_bloc.values.icon_link.value %}
