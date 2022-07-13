@@ -292,7 +292,12 @@ class SaphyrWebGenerator
 
             foreach ($modulesIdsWithPages as $moduleIdWithPage) {
                 $allPages = $this->api->getModuleElements($moduleIdWithPage)["results"];
-                $allPages = $this->filterElements($allPages, false);
+
+                if ($moduleIdWithPage === $this->getPageModuleId()) {
+                    $allPages = $this->filterElements($allPages, $context["web"]["values"]["pages"]);
+                } else {
+                    $allPages = $this->filterElements($allPages, false);
+                }
                 foreach ($allPages as $page) {
                     $values = $page['values'];
                     $url = self::getHref($values['url']['value']);
