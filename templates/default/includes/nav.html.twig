@@ -57,14 +57,14 @@
         {% if page.childrens|length > 0 %}
             <h6 class="dropdown-header" {{ attrs|join(" ")|raw }}>
             {% if page.values.url.value != '#' %}
-                <a href="{{ href(page.values.url.value)|spaceless }}">{{ page.values.menu.value }}</a>
+                <a href="{{ href(page.values.url.value)|spaceless }}" {% if page.values.target.value %}target="{{ page.values.target.value }}"{% endif %}>{{ page.values.menu.value }}</a>
             {% else %}
                 {{ page.values.menu.value }}
             {% endif %}
             </h6>
             {{ _self.drawBigSubmenuItems(page,current_page) }}
         {% else %}
-            <a class="dropdown-item {% if loop.last %}mb-5{% endif %} {% if page.values.url.value == current_page.values.url.value %}active{% endif %}" {{ attrs|join(" ")|raw }} href="{{ href(page.values.url.value)|spaceless }}">{{ page.values.menu.value }}</a>
+            <a class="dropdown-item {% if loop.last %}mb-5{% endif %} {% if page.values.url.value == current_page.values.url.value %}active{% endif %}" {{ attrs|join(" ")|raw }} {% if page.values.target.value %}target="{{ page.values.target.value }}"{% endif %} href="{{ href(page.values.url.value)|spaceless }}">{{ page.values.menu.value }}</a>
         {% endif %}
     {% endfor %}
 {% endmacro %}
