@@ -44,8 +44,33 @@
     {% endif %}
 {% endmacro %}
 
+{% macro drawBigSubmenuItems(page,current_page) %}
+    {% for page in page.childrens %}
+        {% set attrs = [] %}
+        {% if page.values.menu_image.value %}
+            {% set attrs = attrs|merge(['data-menu_image="' ~ asset(page.values.menu_image, {width: 500}) ~ '"']) %}
+        {% endif %}
+        {% if page.values.menu_text.value %}
+            {% set attrs = attrs|merge(['data-menu_text="' ~ (page.values.menu_text.value)|snl2br|e ~ '"']) %}
+        {% endif %}
+
+        {% if page.childrens|length > 0 %}
+            <h6 class="dropdown-header" {{ attrs|join(" ")|raw }}>
+            {% if page.values.url.value != '#' %}
+                <a href="{{ href(page.values.url.value)|spaceless }}">{{ page.values.menu.value }}</a>
+            {% else %}
+                {{ page.values.menu.value }}
+            {% endif %}
+            </h6>
+            {{ _self.drawBigSubmenuItems(page,current_page) }}
+        {% else %}
+            <a class="dropdown-item {% if loop.last %}mb-5{% endif %} {% if page.values.url.value == current_page.values.url.value %}active{% endif %}" {{ attrs|join(" ")|raw }} href="{{ href(page.values.url.value)|spaceless }}">{{ page.values.menu.value }}</a>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
 <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-white">
-    <div class="container">
+    <div class="container-fluid">
         {% if current_page.values.logo.value %}
             <a href="/" class="navbar-brand"><img src="{{ asset(current_page.values.logo) }}" alt="{{ web.values.title.value }}" class="navbar-brand-img"></a>
         {% elseif web.values.logo.value %}
@@ -71,7 +96,28 @@
                             {% endif %}
                             href="{{ href(page.values.url.value)|spaceless }}"{% if page.values.target.value %} target="{{ page.values.target.value }}"{% endif %}>{{ page.values.menu.value }}</a>
                         {% if page.childrens|length > 0 %}
-                            {{ _self.drawSubmenu(page,current_page,1) }}
+                            {% if page.values.menu_image.value or page.values.menu_text.value %}
+                                <div class="dropdown-menu dropdown-menu-xl p-0" aria-labelledby="navbar_{{ page.id }}">
+                                    <div class="row gx-0">
+                                        <div class="col-12 col-lg-8">
+                                            <div class="dropdown-img-start" {% if page.values.menu_image.value %}style="background-image: url({{ asset(page.values.menu_image, {width: 500}) }});"{% endif %}>
+                                                <div class="h4 fw-bold text-white text-center mb-0">{{ page.values.menu_text.value|snl2br|raw }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-lg-4">
+                                            <div class="dropdown-body">
+                                                <div class="row gx-0">
+                                                    <div class="col-12">
+                                                        {{ _self.drawBigSubmenuItems(page,current_page) }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                {{ _self.drawSubmenu(page,current_page,1) }}
+                            {% endif %}
                         {% endif %}
                     </li>
                 {% endfor %}

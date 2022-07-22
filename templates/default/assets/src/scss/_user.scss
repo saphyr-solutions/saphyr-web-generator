@@ -4,11 +4,6 @@
 //
 
 // region select_card
-/*@media (min-width: 768px) {*/
-/*    .select_card {*/
-/*        width: calc(33.33% - 0.5rem);*/
-/*    }*/
-/*}*/
 .select_card {
   cursor: pointer;
   .card-body {
@@ -33,6 +28,31 @@
     position: absolute;
     top: 0;
     right: 0;
+  }
+}
+// endregion
+
+// region menu
+nav.navbar .dropdown-menu-xl {
+  @include media-breakpoint-up(lg) {
+    right: 0!important;
+    left: auto!important;
+    transform: none!important;
+  }
+  .dropdown-img-start {
+    min-height: 250px;
+    &::before {
+      z-index: -1;
+      background-color: $primary;
+    }
+  }
+}
+// endregion
+
+// region footer
+footer {
+  .footer-brand {
+    max-width: 250px;
   }
 }
 // endregion

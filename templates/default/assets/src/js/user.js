@@ -75,3 +75,39 @@ document.querySelectorAll('.select_card').forEach(function (item) {
     });
 });
 // endregion
+
+// region change menu image on link hover
+document.querySelectorAll(".dropdown-menu-xl .dropdown-header, .dropdown-menu-xl .dropdown-item").forEach(function (item) {
+    const menu = item.closest(".dropdown-menu");
+    const menuImage = menu.querySelector(".dropdown-img-start");
+    const menuText = menuImage.querySelector("div");
+    const originMenuImage = menuImage.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+    const originMenuText = menuText.innerHTML;
+
+    const itemMenuImage = item.dataset.hasOwnProperty("menu_image") ? item.dataset.menu_image : null;
+    const itemMenuText = item.dataset.hasOwnProperty("menu_text") ? item.dataset.menu_text : null;
+
+    item.addEventListener("mouseover", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (itemMenuImage && itemMenuText) {
+            menuImage.style.backgroundImage = "url(" + itemMenuImage + ")";
+            menuText.innerHTML = itemMenuText;
+        } else if (itemMenuImage) {
+            menuImage.style.backgroundImage = "url(" + itemMenuImage + ")";
+            menuText.innerHTML = "";
+        } else if (itemMenuText) {
+            menuImage.style.backgroundImage = null;
+            menuText.innerHTML = itemMenuText;
+        } else {
+            if (originMenuImage) {
+                menuImage.style.backgroundImage = "url(" + originMenuImage + ")";
+            } else {
+                menuImage.style.backgroundImage = null;
+            }
+            menuText.innerHTML = originMenuText;
+        }
+    });
+});
+// endregion
