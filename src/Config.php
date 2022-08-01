@@ -74,7 +74,7 @@ class Config
      */
     public $use_scssphp;
 
-    public $secured_pages_ttl;
+    public $secured_parts_ttl;
 
 
 	public $editor_mode;
@@ -106,6 +106,6 @@ class Config
         $this->class_root_dir = './vendor/saphyr-solutions/saphyr-web-generator/';
         $this->use_scssphp = true;
         $this->template = "default";
-        $this->secured_pages_ttl = 3600;
+        $this->secured_parts_ttl = 3600;
     }
 }

@@ -2,14 +2,17 @@
 
 {% block bodyClasses %} {{ current_page.values.classes_css_body.value }}  p_{{ current_page.values.url.value and current_page.values.url.value != '/' ? current_page.values.url.value : 'home' }}{% endblock %}
 {% block content %}
-
     {% include 'includes/nav.html.twig' %}
 
-    <section id="main" class="flex-shrink-0">
-        {% for section in current_page.sections %}
+    {% if current_page.can_view %}
+        <section id="main" class="flex-shrink-0">
+            {% for section in current_page.sections %}
                 {{ include('sections/' ~ section.values.columns.value ~ '.html.twig', {current_section: section}, with_context = true) }}
-        {% endfor %}
-    </section>
+            {% endfor %}
+        </section>
+    {% else %}
+        {% include 'includes/pages_login_form.html.twig' %}
+    {% endif %}
 
     {% include 'includes/footer.html.twig' %}
 {% endblock %}

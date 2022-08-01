@@ -94,13 +94,13 @@ class QueryBuilder
                     $cond = isset($querie['condition']) ? $querie['condition'] : '=';
                     switch ($cond) {
                         case '%' :
-                            $fieldFound = mb_eregi($querie['value'], $item[$field_reference]);
+                            $fieldFound = mb_eregi($querie['value'], $item["values"][$field_reference]["value"]);
                             break;
                         case '=' :
-                            $fieldFound = $item[$field_reference] == $querie['value'];
+                            $fieldFound = $item["values"][$field_reference]["value"] == $querie['value'];
                             break;
                         case '!=':
-                            $fieldFound = $item[$field_reference] != $querie['value'];
+                            $fieldFound = $item["values"][$field_reference]["value"] != $querie['value'];
                             break;
                         case '>':
                         case '>=':
@@ -108,7 +108,7 @@ class QueryBuilder
                         case '<=':
                             switch ($field['type']) {
                                 case 'DateTime':
-                                    $str = '$fieldFound=strtotime($item[$field_reference])' . $cond . 'strtotime($querie[\'value\']);';
+                                    $str = '$fieldFound=strtotime($item[\'values\'][$field_reference][\'value\'])' . $cond . 'strtotime($querie[\'value\']);';
                                     eval($str);
                                     break;
                             }

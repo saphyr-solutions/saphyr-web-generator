@@ -15,7 +15,7 @@ class SaphyrWebGenerator
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var string
@@ -101,7 +101,7 @@ class SaphyrWebGenerator
      * @return string
      * @throws \Exception
      */
-    protected function getRequestUri(): string
+    public function getRequestUri(): string
     {
         if (!$this->request_uri) {
             $uri = substr($_SERVER["REQUEST_URI"], 1);
@@ -345,6 +345,9 @@ class SaphyrWebGenerator
             // Detect type of page
             $pageType = $this->getRequestPageType();
 
+            // CHeck logout GET
+            $this->handleLogout();
+
             $context = $this->getTwigContext();
             if (!$context["web"]) {
                 return $this->renderError(404);
@@ -352,18 +355,12 @@ class SaphyrWebGenerator
 
             $this->refreshSitemap($context);
 
-            if (!$context["current_page"] || array_keys($context["current_page"]) === ["editor"]) {
+            if (!$context["current_page"]) {
                 return $this->renderError(404);
                 // TODO si la page n'est pas trouvée, regarder en + si elle existe via l'API
             }
-
-            $this->handlePostDatas($context["current_page"]);
-
-            if ($this->canView($context["current_page"])) {
-                return $this->getTwigEnvironment()->render($pageType . '.html.twig', $context);
-            } else {
-                return $this->getTwigEnvironment()->render($pageType . '_login.html.twig', $context);
-            }
+            $this->handlePostDatas();
+            return $this->getTwigEnvironment()->render($pageType . '.html.twig', $context);
         } catch (\Exception $e) {
             return $this->renderError($e->getCode(), $e->getMessage());
         }
@@ -451,10 +448,22 @@ class SaphyrWebGenerator
     }
 
     /**
+     * Handle logout
+     *
+     */
+    protected function handleLogout()
+    {
+        if (isset($_GET["logout"]) && $_GET["logout"]) {
+            unset($_SESSION["allowed_parts"]);
+            $this->reload();
+        }
+    }
+
+    /**
      * Handle all POST
      *
      */
-    protected function handlePostDatas($page)
+    protected function handlePostDatas()
     {
         $datas = $_POST;
 
@@ -485,39 +494,82 @@ class SaphyrWebGenerator
                     throw new \Exception("An error occured", 500);
                 }
             }
-        } else if (isset($datas["password"])) {
-            // Verify page password
-            $isValid = $this->api->isValid($this->getRequestPageModuleId(), $page["unique"], ["password" => $datas["password"]]);
-            if ($isValid["isValid"]["password"]) {
+        } else if (isset($datas["part_unique"]) && isset($datas["part_module_id"])) {
+            // Verify part access
+            $partUnique = $datas["part_unique"];
+            $partModuleId = $datas["part_module_id"];
+            unset($datas["part_unique"]);
+            unset($datas["part_module_id"]);
+
+            $redirectGets = ["errors" => ["password" => "no_allowed"]];
+            if (isset($datas["login"]) && $datas["login"]) {
+                $redirectGets["login"] = $datas["login"];
+            }
+            $session = ["time" => time()];
+            $isValid = false;
+
+            $parts = $this->api->getModuleElements($partModuleId)["results"];
+            $parts = $this->filterElements($parts, $partUnique);
+
+            if ($parts[0]) {
+                $part = $parts[0];
+                if (
+                    isset($part["values"]["account_field_login"])
+                    && $part["values"]["account_field_login"]["value"]
+                    && isset($part["values"]["account_field_password"])
+                    && $part["values"]["account_field_password"]["value"]
+                ) {
+                    // Check login from fields
+                    if ($datas["password"] && $datas["login"]) {
+                        $linkedModuleId = (int)explode("|", $part["values"]["account_field_login"]["value"], 2)[0];
+                        $linkedLoginField = explode("|", $part["values"]["account_field_login"]["value"], 2)[1];
+                        $linkedPasswordField = explode("|", $part["values"]["account_field_password"]["value"], 2)[1];
+
+                        $linkedElementsFound = [];
+                        $linkedElementsOnLogin = $this->api->getItems([
+                            "module" => $linkedModuleId,
+                            "filter" => [
+                                [
+                                    "reference" => $linkedLoginField,
+                                    "condition" => "=",
+                                    "value" => $datas["login"]
+                                ]
+                            ]
+                        ]);
+                        foreach ($linkedElementsOnLogin as $linkedElement) {
+                            // Check password
+                            $passwordCheck = $this->api->isValid($linkedModuleId, $linkedElement["unique"], [$linkedPasswordField => $datas["password"]]);
+                            if ($passwordCheck["isValid"]["password"]) {
+                                $linkedElementsFound[] = $linkedElement;
+                            }
+                        }
+
+                        if ($linkedElementsFound) {
+                            $isValid = true;
+                            $session["accounts_uniques"] = [];
+                            foreach ($linkedElementsFound as $item) {
+                                $session["accounts_uniques"][] = $item["unique"];
+                            }
+                        }
+                    }
+                } else if (isset($part["values"]["password"]) && $part["values"]["password"]["value"]) {
+                    if ($datas["password"]) {
+                        // Check password
+                        $passwordCheck = $this->api->isValid($partModuleId, $partUnique, ["password" => $datas["password"]]);
+                        if ($passwordCheck["isValid"]["password"]) {
+                            $isValid = true;
+                        }
+                    }
+                }
+            }
+
+            if ($isValid) {
                 // Set to session
-                $_SESSION["allowed_pages"][$page["unique"]] = time();
+                $_SESSION["allowed_parts"][$partUnique] = $session;
                 $this->reload();
             } else {
                 // Redirect to same page with flash
-                $this->reload(["errors" => ["password" => "no_allowed"]]);
-            }
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public function handleXHR()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST)) {
-            $datas = $_POST;
-            if (isset($datas['form']) && isset($datas['formId'])) {
-                $formModule = $this->api->getModuleInfos($datas['form']);
-                $module_forms = array_filter($formModule['module_forms'], function ($e) use ($datas) {
-                    return $e['id'] == $datas['formId'];
-                });
-                if ($module_forms) {
-                    $module_forms = array_shift($module_forms);
-                    $result = $this->api->addElement($datas['form'], $datas);
-                    $return = ['result' => ($result ? 'success' : 'error')];
-                    echo json_encode($return);
-                    exit();
-                }
+                $this->reload($redirectGets);
             }
         }
     }
@@ -533,29 +585,41 @@ class SaphyrWebGenerator
             $fullUri .= "?" . http_build_query($gets);
         }
         header("Location: " . $fullUri);
+        exit;
     }
 
     /**
-     * @param $page
+     * @param $part
      * @return bool
      */
-    protected function canView($page): bool
+    protected function canView($part): bool
     {
-        $return = false;
+        $isSecured = false;
 
-        if (isset($page["values"]["password"]) && $page["values"]["password"]["value"]) {
-            if (isset($_SESSION["allowed_pages"][$page["unique"]])) {
+        if (isset($part["values"]["password"]) && $part["values"]["password"]["value"]) {
+            $isSecured = true;
+        } elseif (
+            isset($part["values"]["account_field_login"])
+            && $part["values"]["account_field_login"]["value"]
+            && isset($part["values"]["account_field_password"])
+            && $part["values"]["account_field_password"]["value"]
+        ) {
+            $isSecured = true;
+        }
+
+        $return = true;
+        if ($isSecured) {
+            $return = false;
+            if (isset($_SESSION["allowed_parts"][$part["unique"]])) {
                 // check secured time
-                $sessionTime = $_SESSION["allowed_pages"][$page["unique"]];
-                $ttl = $this->config->secured_pages_ttl;
+                $sessionTime = (int)$_SESSION["allowed_parts"][$part["unique"]]["time"];
+                $ttl = $this->config->secured_parts_ttl;
                 $limit = $sessionTime+$ttl;
                 $now = time();
                 if ($now <= $limit) {
                     $return = true;
                 }
             }
-        } else {
-            $return = true;
         }
 
         return $return;
@@ -680,7 +744,6 @@ class SaphyrWebGenerator
     }
 
     /**
-     * @param array $pages
      * @return array|mixed
      * @throws \Exception
      */
@@ -714,14 +777,18 @@ class SaphyrWebGenerator
             }
         }
 
-		$module = $this->api->getModuleInfos($this->getPageModuleId());
-		$config = $this->api->getModuleElementField($this->getPageModuleId(), 'sections');
+        if ($return) {
+            $return["can_view"] = $this->canView($return);
 
-		$return['editor'] = [
-			"slug" => $module['slug'],
-			'id' => $module['id'],
-			"section" => ($config ? $config['id']:0)
-		];
+            $module = $this->api->getModuleInfos($this->getPageModuleId());
+            $config = $this->api->getModuleElementField($this->getPageModuleId(), 'sections');
+            $return['editor'] = [
+                "slug" => $module['slug'],
+                'id' => $module['id'],
+                "section" => ($config ? $config['id']:0)
+            ];
+        }
+
         return $return;
     }
 
@@ -740,7 +807,12 @@ class SaphyrWebGenerator
 
         // Add Blocs to each items
         foreach ($return as $key => $item) {
-			$return[$key]['module']=['slug' =>$module['slug'],'id' =>$module['id'],'add' => $config?$config['id']:null];
+            $return[$key]["can_view"] = $this->canView($item);
+            $return[$key]['module'] = [
+                'slug' => $module['slug'],
+                'id' => $module['id'],
+                'add' => $config ? $config['id'] : null
+            ];
             $return[$key]["blocs"] = $this->getCurrentPageSectionBlocs($item);
         }
 
@@ -762,7 +834,6 @@ class SaphyrWebGenerator
 		$config = $this->api->getModuleElementField($this->getSectionModuleId(), 'blocs');
 
 		foreach ($return as $key => $bloc) {
-
             // Handle form
             if ($bloc['values']['form_id']['value']) {
                 $return[$key]['values']['type']['value'] = 'form';
@@ -793,6 +864,25 @@ class SaphyrWebGenerator
                         }
                     }
                 }
+            }
+
+            // Handle accounts
+            if ($bloc["values"]["account_field_login"]["value"] && $bloc["values"]["account_field_password"]["value"]) {
+                $accountsUniques = [];
+                $accounts = [];
+
+                // Find accounts logged
+                if (isset($_SESSION["allowed_parts"][$bloc["unique"]]["accounts_uniques"]) && is_array($_SESSION["allowed_parts"][$bloc["unique"]]["accounts_uniques"])) {
+                    $accountsUniques = $_SESSION["allowed_parts"][$bloc["unique"]]["accounts_uniques"];
+                }
+
+                if ($accountsUniques) {
+                    $accountModuleId = (int)explode("|", $bloc["values"]["account_field_login"]["value"], 2)[0];
+                    $allAccounts = $this->api->getModuleElements($accountModuleId)["results"];
+                    $accounts = $this->filterElements($allAccounts, $accountsUniques);
+                }
+
+                $return[$key]['accounts'] = $accounts;
             }
 
             if ($bloc["values"]["load_from"]["value"]) {
@@ -835,6 +925,11 @@ class SaphyrWebGenerator
 				$return[$key]['module']=['slug' =>$module['slug'],'id' =>$module['id']];
 			}
         }
+
+        foreach ($return as $key => $item) {
+            $return[$key]["can_view"] = $this->canView($item);
+        }
+
         return $return;
     }
 
@@ -862,14 +957,14 @@ class SaphyrWebGenerator
 
         $moduleId = $this->getRequestPageModuleId();
 		$module = $this->api->getModuleInfos($moduleId);
+
         return [
             "web" => $web,
             "menus" => $menus,
 			"moduleId" => $moduleId,
 			"module" => $module,
 			"config" => $this->config,
-            "current_page" => $currentPage,
-            "request_uri" => $this->getRequestUri()
+            "current_page" => $currentPage
         ];
     }
 
@@ -893,8 +988,7 @@ class SaphyrWebGenerator
     private function getTwigEnvironment(): Environment
     {
         $loader = new FilesystemLoader($this->getTemplatePaths());
-        $return = new Environment($loader,[ 'debug' => true]);
-		$return->addExtension(new \Twig\Extension\DebugExtension());
+        $return = new Environment($loader);
         $return->addExtension(new TwigExtension($this, $loader));
         return $return;
     }
@@ -904,7 +998,7 @@ class SaphyrWebGenerator
      * @param array|string $uniques
      * @return array
      */
-    private function filterElements(array $elements, $uniques): array
+    public function filterElements(array $elements, $uniques): array
     {
         if ($uniques !== false && !is_array($uniques)) {
             $uniques = [$uniques];

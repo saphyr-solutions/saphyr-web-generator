@@ -1,0 +1,35 @@
+<div data-aos="fade-up" data-aos-delay="200">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-5 col-lg-4">
+
+            <!-- Form -->
+            <form method="post" action="/{{ request_uri }}" class="mb-6">
+                <!-- Login -->
+                <div class="form-group mb-5">
+                    <label class="form-label" for="login">Identifiant</label>
+                    <input type="text" class="form-control {{ _get.errors.login ? "is-invalid" : "" }}" id="login" name="login" value="{{ _get["login"] }}" placeholder="Entrez votre identifiant">
+                    {% if _get.errors.login == "no_allowed" %}
+                        <div class="invalid-feedback">Identifiant incorrect</div>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="form-group mb-5">
+                    <label class="form-label" for="password">Mot de passe</label>
+                    <input type="password" class="form-control {{ _get.errors.password ? "is-invalid" : "" }}" id="password" name="password" placeholder="Entrez votre mot de passe">
+                    {% if _get.errors.password == "no_allowed" %}
+                        <div class="invalid-feedback">Mot de passe incorrect</div>
+                    {% endif %}
+                </div>
+
+                <!-- Hidden -->
+                <input type="hidden" name="part_unique" value="{{ current_bloc.unique }}">
+                <input type="hidden" name="part_module_id" value="{{ current_bloc.module.id }}">
+
+                <!-- Submit -->
+                <button class="btn w-100 btn-primary" type="submit">Connexion</button>
+            </form>
+
+        </div>
+    </div> <!-- / .row -->
+</div>

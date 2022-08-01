@@ -1,0 +1,34 @@
+<section class="py-15" data-aos="fade-up" data-aos-delay="200">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-5 col-lg-4">
+
+                <!-- Heading -->
+                <h1 class="mb-0 fw-bold text-center">Connexion</h1>
+
+                <!-- Text -->
+                <p class="mb-6 text-center text-muted">Veuillez vous connecter pour voir la page "<span class="text-primary">{{ current_page.values.menu.value }}</span>"</p>
+
+                <!-- Form -->
+                <form method="post" action="/{{ request_uri }}" class="mb-6">
+                    <!-- Password -->
+                    <div class="form-group mb-5">
+                        <label class="form-label" for="password">Mot de passe</label>
+                        <input type="password" class="form-control {{ _get.errors.password ? "is-invalid" : "" }}" id="password" name="password" placeholder="Entrez votre mot de passe">
+                        {% if _get.errors.password == "no_allowed" %}
+                            <div class="invalid-feedback">Mot de passe incorrect</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Hidden -->
+                    <input type="hidden" name="part_unique" value="{{ current_page.unique }}">
+                    <input type="hidden" name="part_module_id" value="{{ current_page.module_id }}">
+
+                    <!-- Submit -->
+                    <button class="btn w-100 btn-primary" type="submit">Voir la page</button>
+                </form>
+
+            </div>
+        </div> <!-- / .row -->
+    </div> <!-- / .container -->
+</section>

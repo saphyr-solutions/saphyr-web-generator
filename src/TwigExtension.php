@@ -38,10 +38,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $return = parent::getFunctions();
 
         // Define dump function
-//        $return[] = new TwigFunction('dump', [$this,"dumpFunction"]);
-        $return[] = new TwigFunction('asset', [$this,"assetFunction"]);
+        $return[] = new TwigFunction('dump', [$this,"dump"]);
+        $return[] = new TwigFunction('asset', [$this,"asset"]);
         $return[] = new TwigFunction('isHTML', [$this,"isHTML"]);
         $return[] = new TwigFunction('href', [$this,"href"]);
+        $return[] = new TwigFunction('getElements', [$this,"getElements"]);
 
         return $return;
     }
@@ -50,7 +51,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $return = parent::getFilters();
 
-        $return[] = new TwigFilter('snl2br', [$this,"snl2brFunction"]);
+        $return[] = new TwigFilter('snl2br', [$this,"snl2br"]);
 
         return $return;
     }
@@ -65,6 +66,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             "_post" => $_POST,
             "_get" => $_GET,
             "_session" => $_SESSION,
+            "request_uri" => $this->saphyrWebGenerator->getRequestUri(),
+            "config" => $this->saphyrWebGenerator->config
         ];
     }
 
@@ -72,7 +75,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param $asset
      * @return string|null
      */
-    public function assetFunction($asset,$params=null)
+    public function asset($asset,$params=null)
     {
         $return = null;
         if (is_string($asset)) {
@@ -112,7 +115,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param $asset
      * @return string|null
      */
-    public function snl2brFunction($string)
+    public function snl2br($string)
     {
         $return = $string;
         $addBr = strpos($string, '<br>') === false && strpos($string, '<br />') === false && strpos($string, '<br/>') === false;
@@ -126,10 +129,22 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param $asset
      * @return string|null
      */
-    public function dumpFunction(...$vars)
+    public function dump(...$vars)
     {
         foreach ($vars as $var) {
             dump($var);
         }
+    }
+
+    /**
+     * @param $moduleId
+     * @param $uniques
+     * @return string|null
+     * @throws \Exception
+     */
+    public function getElements($moduleId, $uniques)
+    {
+        $all = $this->saphyrWebGenerator->api->getModuleElements($moduleId)["results"];
+        return $this->saphyrWebGenerator->filterElements($all, $uniques);
     }
 }
