@@ -11,7 +11,7 @@
                     </div>
                 </div>
                 <div class="col ms-n4">
-                    <h2 class="fw-bold mb-0">Bonjour {{ current_bloc.accounts[0].values.firstname.value }} {{ current_bloc.accounts[0].values.lastname.value }}</h2>
+                    <h2 class="fw-bold mb-0">Bonjour {{ current_bloc.accounts[0].values.firstname.label }} {{ current_bloc.accounts[0].values.lastname.label }}</h2>
                     <p class="fs-lg text-gray-700 mb-0">Bienvenue sur votre espace client PPE</p>
                 </div>
             </div>
@@ -20,22 +20,38 @@
 
         {% for accountKey, account in current_bloc.accounts %}
             <div>
-                <h3 class="fw-bold">Lot n°{{ account.values.n_lot.value }}</h3>
-                <div class="accordion shadow-light-lg mb-5 mb-md-6" id="account{{ accountKey }}">
+                <h3 class="fw-bold mb-5">Lot n°{{ account.values.n_lot.label }}</h3>
 
-                    <!-- Fichiers -->
-                    {% set nbFiles = account.values.files|length %}
-                    {% if nbFiles > 0 %}
-                        {% set itemId = "account" ~ accountKey ~ "File" %}
+                {% set nbFiles = account.values.files|length %}
 
-                        <div class="accordion-item">
-                            <div class="accordion-button collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#{{ itemId }}" aria-expanded="false" aria-controls="{{ itemId }}">
-                                <span class="me-4" id="{{ itemId }}Heading">Fichiers</span>
-                                <div class="text-muted ms-auto"><span class="fs-sm me-4 d-none d-md-inline">{{ nbFiles }} élément{{ nbFiles > 1 ? "s" : "" }}</span></div>
+                {% if account.values.devis_ppe|length > 0 %}
+                {% set devisPpeObjects = getElements(account.values.devis_ppe[0].moduleId, account.values.devis_ppe) %}
+                {% endif %}
+
+                <div class="mb-5" id="a{{ accountKey }}">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border shadow-light-lg">
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <!-- Fichiers BTN -->
+                                        {% if nbFiles > 0 %}
+                                            <li class="list-group-item" data-bs-toggle="collapse" data-bs-target="#a{{ accountKey }}Files">Fichiers</li>
+                                        {% endif %}
+
+                                        <!-- Devis PPE BTN -->
+                                        {% for devisKey, devis in devisPpeObjects %}
+                                            <li class="list-group-item" data-bs-toggle="collapse" data-bs-target="#a{{ accountKey }}Devis{{ devisKey }}">{{ devis.values.name_devis_ppe.label }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                             </div>
-
-                            <div class="accordion-collapse collapse" id="{{ itemId }}" aria-labelledby="{{ itemId }}Heading" data-bs-parent="#account{{ accountKey }}">
-                                <div class="accordion-body">
+                        </div>
+                        <div class="col-md-8">
+                            <!-- Fichiers CONTENT -->
+                            {% if nbFiles > 0 %}
+                            <div class="card border shadow-light-lg collapse" data-bs-parent="#a{{ accountKey }}" id="a{{ accountKey }}Files">
+                                <div class="card-body">
                                     <ul class="list">
                                         {% for file in account.values.files %}
                                             <li class="list-item"><a class="list-link" target="_blank" download="{{ file.label }}" href="http://{{ config.api_client }}.{{ config.api_domain }}/api/v1/file/{{ file.id }}/{{ file.key }}">{{ file.label }}</a></li>
@@ -43,40 +59,39 @@
                                     </ul>
                                 </div>
                             </div>
-                        </div>
-                    {% endif %}
+                            {% endif %}
 
-                    <!-- Devis PPE -->
-                    {% set nbDevisPpe = account.values.devis_ppe|length %}
-                    {% if nbDevisPpe > 0 %}
-                        {% set devisPpeObjects = getElements(account.values.devis_ppe[0].moduleId, account.values.devis_ppe) %}
-                        {% set itemId = "account" ~ accountKey ~ "DevisPPE" %}
-
-                        <div class="accordion-item">
-                            <div class="accordion-button collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#{{ itemId }}" aria-expanded="false" aria-controls="{{ itemId }}">
-                                <span class="me-4" id="{{ itemId }}Heading">Devis PPE</span>
-                                <div class="text-muted ms-auto"><span class="fs-sm me-4 d-none d-md-inline">{{ nbDevisPpe }} élément{{ nbDevisPpe > 0 ? "s" : "" }}</span></div>
-                            </div>
-
-                            <div class="accordion-collapse collapse" id="{{ itemId }}" aria-labelledby="{{ itemId }}Heading" data-bs-parent="#account{{ accountKey }}">
-                                <div class="accordion-body">
-                                    <div class="row">
-                                        {% for devis in devisPpeObjects %}
-                                            <div class="col-md-3 col-sm-6">
-                                                <div class="card border border-success">
-                                                    <div class="card-body">
-                                                        <h4 class="fw-bold">{{ devis.values.name_devis_ppe.value }}</h4>
-                                                        <p class="text-muted mb-0">N° {{ devis.values.n_devis_ppe.value }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
+                            <!-- Devis PPE CONTENT -->
+                            {% for devisKey, devis in devisPpeObjects %}
+                            <div class="card border shadow-light-lg collapse" data-bs-parent="#a{{ accountKey }}" id="a{{ accountKey }}Devis{{ devisKey }}">
+                                <div class="card-body">
+                                    <table class="table table-bordered table-sm">
+                                        <tr>
+                                            <th>Nom</th>
+                                            <td>{{ devis.values.name_devis_ppe.label }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Catégorie</th>
+                                            <td>{{ devis.values.categorie_devis_ppe.label }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Statut</th>
+                                            <td>{{ devis.values.status_devis_ppe.label }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>N°</th>
+                                            <td>{{ devis.values.n_devis_ppe.label }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Version</th>
+                                            <td>{{ devis.values.version_devis_ppe.label }}</td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
-                    {% endif %}
-
+                    </div>
                 </div>
             </div>
             {% if not loop.last %}

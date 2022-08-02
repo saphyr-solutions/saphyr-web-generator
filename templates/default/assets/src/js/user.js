@@ -111,3 +111,7 @@ document.querySelectorAll(".dropdown-menu-xl .dropdown-header, .dropdown-menu-xl
     });
 });
 // endregion
+
+// region move all modal
+document.querySelector("body").append(...document.querySelectorAll(".modal"));
+// endregion

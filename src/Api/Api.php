@@ -563,6 +563,16 @@ class Api
 		return true;
 	}
 
+    /**
+     * @param string $mode REMOTE OR SERVER
+     * @return bool
+     */
+    public static function _isLocalhost($mode = "REMOTE")
+    {
+        $whitelist = array("127.0.0.1", "::1", "localhost");
+        return in_array($_SERVER[$mode . '_ADDR'], $whitelist);
+    }
+
 
 	/**
 	 * @param $method
@@ -579,7 +589,7 @@ class Api
 
 		$headers = [];
 
-		$url = ($_SERVER["REMOTE_ADDR"] === "127.0.0.1" ? "http" : "https") . '://' . $this->client . '.'.$this->domain . $action;
+		$url = (self::_isLocalhost() ? "http" : "https") . '://' . $this->client . '.'.$this->domain . $action;
 		if ($this->token) {
 			$headers = ['token: ' . $this->token];
 		}
@@ -607,7 +617,7 @@ class Api
 			$verbose = fopen('php://temp', 'w+');
 			curl_setopt($ch, CURLOPT_STDERR, $verbose);
 		}
-		if (stristr("127.0.0.1", $_SERVER["SERVER_ADDR"]) || stristr("localhost", $_SERVER["SERVER_ADDR"])) {
+		if (self::_isLocalhost("SERVER")) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		}
 		if (in_array($method, ['POST', 'PUT'])) {

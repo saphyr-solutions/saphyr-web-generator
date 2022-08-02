@@ -380,7 +380,7 @@ class SaphyrWebGenerator
 			$redirect = "www." . $redirect;
 
 		}
-		if ($force_https && !self::_isHttps() && $_SERVER["REMOTE_ADDR"] !== "127.0.0.1") {
+		if ($force_https && !self::_isHttps() && !Api::_isLocalhost()) {
 			$redirect = "https://" . $redirect;
 		}
 
@@ -618,6 +618,7 @@ class SaphyrWebGenerator
                 $now = time();
                 if ($now <= $limit) {
                     $return = true;
+                    $_SESSION["allowed_parts"][$part["unique"]]["time"] = $now;
                 }
             }
         }
